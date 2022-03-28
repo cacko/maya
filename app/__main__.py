@@ -14,4 +14,4 @@ def server_static(filename):
     return static_file(filename, root=HTDOCS_ROOT.absolute().as_posix())
 
 
-run(host='localhost', port=12018, debug=True)
+run(host='0.0.0.0', port=12018, debug=True)
