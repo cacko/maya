@@ -13,7 +13,8 @@ url = "https://pypi.cacko.net/simple/"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-simple-photo-gallery = "^1.5.4"
+simple-photo-gallery = "^1.5.5"
+bottle = "^0.12.19"
 
 [tool.poetry.dev-dependencies]
 

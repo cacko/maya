@@ -3,7 +3,7 @@
 version: "3"
 
 vars:
-  GREETING: Hello, World!
+  PROJECT: maya
 
 tasks:
   default:
@@ -14,22 +14,22 @@ tasks:
   logs:
     desc: monitor logs
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user -u znayko -f' | ccze -A
+      - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user -u {{.PROJECT}} -f' | ccze -A
 
   start:
     desc: start the service
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;export ZNAYKO_LOG_LEVEL="DEBUG";systemctl --user start znayko'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;export ZNAYKO_LOG_LEVEL="DEBUG";systemctl --user start {{.PROJECT}}'
 
   restart:
     desc: restart the service
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user restart znayko'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user restart {{.PROJECT}}'
 
   stop:
     desc: stop the server
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user stop znayko'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user stop {{.PROJECT}}'
 
   push:
     desc: commit and pushes current changes
@@ -41,7 +41,7 @@ tasks:
   pull:
     desc: pulls from git
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/znayko;git reset --hard;git pull'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};git reset --hard;git pull'
 
   pp:
     desc: push and pull
@@ -57,17 +57,17 @@ tasks:
   systemd-exec:
     desc: systemd exec
     cmds:
-      - direnv exec . poetry run botyo serve
+      - direnv exec . poetry run {{.PROJECT}} serve
 
   install:
     desc: calls poetry install and npm ci
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/znayko;poetry install'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};poetry install'
 
   update:
     desc: calls poetry install and npm ci
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/znayko;poetry update'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};poetry update'
 
   deploy:
     desc: shortcut for stop -> push -> pull -> restart
