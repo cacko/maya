@@ -9,9 +9,9 @@ def homepage():
     return static_file("index.html", root=HTDOCS_ROOT.absolute().as_posix())
 
 
-@route('/<filename>')
-def server_static(filename):
-    return static_file(filename, root=HTDOCS_ROOT.absolute().as_posix())
+@route('/<filepath:path>')
+def server_static(filepath):
+    return static_file(filepath, root=HTDOCS_ROOT.absolute().as_posix())
 
 
 run(host='0.0.0.0', port=12018, debug=True)
