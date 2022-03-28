@@ -16,3 +16,7 @@ tea/
 data/
 t.py
 .venv
+gallery.json
+public/
+templates/
+images_data.json
