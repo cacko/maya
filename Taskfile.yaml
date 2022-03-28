@@ -1,0 +1,79 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    desc: start dev
+    cmds:
+      - poetry run python -m "app"
+
+  logs:
+    desc: monitor logs
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user -u znayko -f' | ccze -A
+
+  start:
+    desc: start the service
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;export ZNAYKO_LOG_LEVEL="DEBUG";systemctl --user start znayko'
+
+  restart:
+    desc: restart the service
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user restart znayko'
+
+  stop:
+    desc: stop the server
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user stop znayko'
+
+  push:
+    desc: commit and pushes current changes
+    cmds:
+      - git add .  || true
+      - git commit -am "$(curl -s https://commit.cacko.net/index.txt)" || true
+      - git push || true
+
+  pull:
+    desc: pulls from git
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/znayko;git reset --hard;git pull'
+
+  pp:
+    desc: push and pull
+    cmds:
+      - task: push
+      - task: pull
+
+  redis:
+    desc: open redis-cli
+    cmds:
+      - redis-cli $REDIS_CLI
+
+  systemd-exec:
+    desc: systemd exec
+    cmds:
+      - direnv exec . poetry run botyo serve
+
+  install:
+    desc: calls poetry install and npm ci
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/znayko;poetry install'
+
+  update:
+    desc: calls poetry install and npm ci
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/znayko;poetry update'
+
+  deploy:
+    desc: shortcut for stop -> push -> pull -> restart
+    cmds:
+      - task: stop
+      - task: push
+      - task: pull
+      - task: install
+      - task: restart
