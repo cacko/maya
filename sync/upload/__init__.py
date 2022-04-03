@@ -4,11 +4,23 @@ from sync.firestore import Firestore
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from sync import log
+from enum import Enum
 
 
-def process(item: S3Upload, progress: tqdm):
+class Method(Enum):
+    UPLOAD = "upload"
+    THUMB = "upload_thumbs"
+
+
+def upload(item: S3Upload, progress: tqdm):
     src, full, thumb = S3.upload(item)
     Firestore.store(src, full, thumb)
+    progress.update(1)
+    return src, full, thumb
+
+
+def upload_thumbs(item: S3Upload, progress: tqdm):
+    src, full, thumb = S3.thumb(item)
     progress.update(1)
     return src, full, thumb
 
@@ -20,13 +32,19 @@ class Uploader:
     POOL_SIZE = 10
     progress: tqdm = None
     processed = []
-    tf: Path = None
     tracking = None
+    method: Method = None
 
-    def __init__(self, total):
+    def __init__(self, total, method: Method = Method.UPLOAD):
+        self.method = method
         self.queue = []
         self.progress = tqdm(total=total)
-        tf = Path("processed")
+
+        if self.method == Method.THUMB:
+            tf = Path("processed_thumbs")
+        else:
+            tf = Path("processed")
+
         if tf.exists():
             self.processed = list(map(lambda x: x.strip(), tf.read_text().split("\n")))
         self.tracking = tf.open("a")
@@ -43,7 +61,10 @@ class Uploader:
             items.append(self.queue.pop(0))
             if len(items) == self.POOL_SIZE:
                 break
-        return map(lambda item: executor.submit(process, item, self.progress), items)
+        if self.method == Method.THUMB:
+            return map(lambda item: executor.submit(upload_thumbs, item, self.progress), items)
+        else:
+            return map(lambda item: executor.submit(upload, item, self.progress), items)
 
     def run(self):
         if self.isRunning:

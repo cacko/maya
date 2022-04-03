@@ -3,7 +3,7 @@ from xml.dom import NotFoundErr
 import click
 import sys
 from sync.local import Local
-from sync.upload import Uploader
+from sync.upload import Uploader, Method
 
 
 class SyncCommands(click.Group):
@@ -15,6 +15,22 @@ class SyncCommands(click.Group):
 def cli():
     """This script showcases different terminal UI helpers in Click."""
     pass
+
+
+@cli.command('upload_thumbs')
+@click.argument("path")
+def cmd_upload_thumbs(path):
+    path = Path(path).absolute()
+    if not path.exists():
+        raise NotFoundErr
+    source = Path("processed")
+    photos = list(map(lambda x: x.strip(), source.read_text().split("\n")))
+    uploader = Uploader(len(photos), Method.THUMB)
+    for f in photos:
+        f = Path(f)
+        src = f.absolute()
+        dst = f.relative_to(path)
+        uploader.add(src.as_posix(), dst.as_posix())
 
 
 @cli.command('upload')
@@ -29,6 +45,7 @@ def cmd_upload(path):
         src = f.absolute()
         dst = f.relative_to(path)
         uploader.add(src.as_posix(), dst.as_posix())
+        break
 
 
 @cli.command('quit', short_help="Quit")

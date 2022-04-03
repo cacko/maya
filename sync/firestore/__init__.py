@@ -117,4 +117,5 @@ class Firestore(object, metaclass=FirestoreMeta):
         self.batch.set(doc_ref, document.to_dict())
 
     def __del__(self):
-        self.batch.commit()
+        if len(self.batch):
+            self.batch.commit()

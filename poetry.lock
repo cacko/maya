@@ -116,6 +116,14 @@ python-versions = ">=3.7"
 plum-py = ">=0.5.0"
 
 [[package]]
+name = "filetype"
+version = "1.0.10"
+description = "Infer file type and MIME type of any file/buffer. No external dependencies."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "flake8"
 version = "4.0.1"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -537,7 +545,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e5d3770d7df56ba403869046ce238e71d232c70fb46a7722ab676c6e1b32079f"
+content-hash = "8fb76e84afeaeac171a43e722f3e78c713bb6915583d8b2672793a19c487dc61"
 
 [metadata.files]
 autopep8 = [
@@ -579,6 +587,10 @@ dataclasses-json = [
 exif = [
     {file = "exif-1.3.4-py3-none-any.whl", hash = "sha256:5e6c22ed1ee6aadc10df69d2cc4b90edd33e95ade2dce8b71b88f116e37f2e11"},
     {file = "exif-1.3.4.tar.gz", hash = "sha256:abf3c125167a9ccc780e190966a84559b54627b3dfee04100753222753f5ce30"},
+]
+filetype = [
+    {file = "filetype-1.0.10-py2.py3-none-any.whl", hash = "sha256:63fbe6e818a3d1cfac1d62b196574a7a4b7fc8e06a6c500d53577c018ef127d9"},
+    {file = "filetype-1.0.10.tar.gz", hash = "sha256:323a13500731b6c65a253bc3930bbce9a56dfba71e90b60ffd968ab69d9ae937"},
 ]
 flake8 = [
     {file = "flake8-4.0.1-py2.py3-none-any.whl", hash = "sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d"},
