@@ -6,30 +6,6 @@ vars:
   PROJECT: maya
 
 tasks:
-  default:
-    desc: start dev
-    cmds:
-      - poetry run python -m "app"
-
-  logs:
-    desc: monitor logs
-    cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user -u {{.PROJECT}} -f' | ccze -A
-
-  start:
-    desc: start the service
-    cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;export ZNAYKO_LOG_LEVEL="DEBUG";systemctl --user start {{.PROJECT}}'
-
-  restart:
-    desc: restart the service
-    cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user restart {{.PROJECT}}'
-
-  stop:
-    desc: stop the server
-    cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user stop {{.PROJECT}}'
 
   push:
     desc: commit and pushes current changes
@@ -37,37 +13,6 @@ tasks:
       - git add .  || true
       - git commit -am "$(curl -s https://commit.cacko.net/index.txt)" || true
       - git push || true
-
-  pull:
-    desc: pulls from git
-    cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};git reset --hard;git pull'
-
-  pp:
-    desc: push and pull
-    cmds:
-      - task: push
-      - task: pull
-
-  redis:
-    desc: open redis-cli
-    cmds:
-      - redis-cli $REDIS_CLI
-
-  systemd-exec:
-    desc: systemd exec
-    cmds:
-      - direnv exec . poetry run {{.PROJECT}} serve
-
-  install:
-    desc: calls poetry install and npm ci
-    cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};poetry install'
-
-  update:
-    desc: calls poetry install and npm ci
-    cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};poetry update'
 
   deploy:
     desc: shortcut for stop -> push -> pull -> restart
@@ -77,3 +22,5 @@ tasks:
       - task: pull
       - task: install
       - task: restart
+
+# pip install --no-binary :all: grpcio --ignore-installed and pip install --no-binary :all: grpcio-tools --ignore-installed

@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "maya-58e34"
+  },
+  "targets": {
+    "maya-58e34": {
+      "hosting": {
+        "app": [
+          "maya-58e34"
+        ]
+      }
+    }
+  }
+}
