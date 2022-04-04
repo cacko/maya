@@ -1,7 +1,7 @@
 __all__ = ["BaseModel", "Photo"]
 
 from peewee import *
-from api.storage import Storage
+from app.storage import Storage
 
 
 class BaseModel(Model):
@@ -9,4 +9,4 @@ class BaseModel(Model):
         database = Storage.db
 
 
-from api.storage.models.photo import Photo
+from app.storage.models.photo import Photo

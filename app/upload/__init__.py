@@ -1,10 +1,9 @@
 from pathlib import Path
-from sync.s3 import S3, S3Upload
-from sync.firestore import Firestore
+from app.s3 import S3, S3Upload
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from sync import log
 from enum import Enum
+from flask import current_app
 
 
 class Method(Enum):
@@ -14,7 +13,6 @@ class Method(Enum):
 
 def upload(item: S3Upload, progress: tqdm):
     src, full, thumb = S3.upload(item)
-    Firestore.store(src, full, thumb)
     progress.update(1)
     return src, full, thumb
 
@@ -76,7 +74,7 @@ class Uploader:
                     src, full, thumb = future.result()
                     self.tracking.write(f"{src}\n")
                 except Exception as e:
-                    log.error(e, exc_info=True)
+                    current_app.logger.error(e, exc_info=True)
             self.isRunning = False
 
     def __del__(self):

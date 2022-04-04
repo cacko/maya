@@ -1,13 +1,11 @@
 from datetime import datetime
-from re import A
-from flask import Flask, request, current_app
+from flask import Flask
 import logging
 import os
 from flask.json import JSONEncoder
 from flask_cors import CORS
-
-from app.cache import Cache
 from app.storage import Storage
+from app.s3 import S3
 
 
 class ISOEncoder(JSONEncoder):
@@ -23,7 +21,6 @@ class ISOFlask(Flask):
 
 
 def create_app(test_config=None):
-
     app = ISOFlask(__name__, instance_relative_config=True)
     CORS(app, origins=["http://localhost:4200"])
     app.config.from_envvar("FLASK_CONFIG")
@@ -39,16 +36,13 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-
-    Cache.register(app)
-    Storage.register(app)
-
+    # Storage.register(app)
+    S3.register(app)
 
     from . import cli
-    from . import api
+    from . import rest
 
     app.register_blueprint(cli.bp)
-    app.register_blueprint(api.bp)
-    app.register_blueprint
+    app.register_blueprint(rest.bp)
 
     return app

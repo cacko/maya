@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from "@angular/core";
 import { Image } from "../../entity/image";
 
 @Component({
-  selector: "app-card",
+  selector: "web-card",
   templateUrl: "./card.component.html",
   styleUrls: ["./card.component.scss"]
 })

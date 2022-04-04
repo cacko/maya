@@ -1,29 +1,19 @@
+from flask import Blueprint
 from pathlib import Path
-from xml.dom import NotFoundErr
+from app.upload import Uploader, Method
+from app.local import Local
+from app.exif import Exif
 import click
-import sys
-from sync.local import Local
-from sync.upload import Uploader, Method
-from sync.exif import Exif
+
+bp = Blueprint("cli", __name__)
 
 
-class SyncCommands(click.Group):
-    def list_commands(self, ctx: click.Context) -> list[str]:
-        return list(self.commands)
-
-
-@click.group(cls=SyncCommands)
-def cli():
-    """This script showcases different terminal UI helpers in Click."""
-    pass
-
-
-@cli.command('upload_thumbs')
+@bp.cli.command('upload_thumbs')
 @click.argument("path")
 def cmd_upload_thumbs(path):
     path = Path(path).absolute()
     if not path.exists():
-        raise NotFoundErr
+        raise FileNotFoundError
     source = Path("processed")
     photos = list(map(lambda x: x.strip(), source.read_text().split("\n")))
     uploader = Uploader(len(photos), Method.THUMB)
@@ -34,12 +24,12 @@ def cmd_upload_thumbs(path):
         uploader.add(src.as_posix(), dst.as_posix())
 
 
-@cli.command('upload')
+@bp.cli.command('upload')
 @click.argument("path")
 def cmd_upload(path):
     path = Path(path).absolute()
     if not path.exists():
-        raise NotFoundErr
+        raise FileNotFoundError
     it = Local(path)
     uploader = Uploader(len(it))
     for f in it:
@@ -49,20 +39,14 @@ def cmd_upload(path):
         break
 
 
-@cli.command('exif')
+@bp.cli.command('exif')
 @click.argument("path")
 def cmd_exif(path):
     path = Path(path).absolute()
     if not path.exists():
-        raise NotFoundErr
+        raise FileNotFoundError
     it = Local(path)
     for f in it:
         ex = Exif(f)
         print(f, ex.timestamp, ex.width, ex.height)
-
-
-@cli.command('quit', short_help="Quit")
-def cmd_quit():
-    """Quit."""
-    click.echo(click.style("Bye!", fg='blue'))
-    sys.exit(0)
+        break

@@ -23,4 +23,9 @@ tasks:
       - task: install
       - task: restart
 
+  cli:
+    desc: run flask cli locally
+    cmds:
+      - poetry run flask cli {{.CLI_ARGS}}
+
 # pip install --no-binary :all: grpcio --ignore-installed and pip install --no-binary :all: grpcio-tools --ignore-installed

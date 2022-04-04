@@ -5,7 +5,7 @@ import { PhotosService } from "./service/photos.service";
 import { Image } from "./entity/image";
 
 @Component({
-  selector: "app-root",
+  selector: "web-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.scss"]
 })

@@ -1,11 +1,11 @@
 import boto3
 from dataclasses_json import dataclass_json
 from dataclasses import dataclass
-from sync.config import Config
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
 import filetype
+from flask import Flask
 
 
 @dataclass_json
@@ -30,9 +30,13 @@ def src_key(dst):
 
 
 class S3Meta(type):
+    config: S3Config = None
 
     def __call__(cls, *args, **kwds):
         return type.__call__(cls, *args, **kwds)
+
+    def register(cls, app: 'Flask'):
+        cls.config = S3Config.from_dict(app.config.get_namespace("AWS_"))
 
     def upload(cls, item: S3Upload) -> tuple[str, str, str]:
         return cls().upload_file(item.src, item.dst)
@@ -44,11 +48,10 @@ class S3Meta(type):
 
 class S3(object, metaclass=S3Meta):
     _client: boto3.client = None
-    _config: S3Config = None
     THUMB_SIZE = (300, 300)
 
     def __init__(self) -> None:
-        config: S3Config = S3Config.from_dict(Config.namespace("AWS_"))
+        config = self.__class__.config
         self._client = boto3.client(
             service_name='s3',
             region_name=config.s3_region,
@@ -67,8 +70,12 @@ class S3(object, metaclass=S3Meta):
         dst_thumb = Path(src_key(dst))
         dst_thumb = dst_thumb.parent / f"{dst_thumb.stem}_{'x'.join(map(str, self.THUMB_SIZE))}.webp"
         dst_thumb = dst_thumb.as_posix()
-        self._client.upload_fileobj(byte_io, bucket, dst_thumb,
-                                    ExtraArgs={'ContentType': 'image/webp', 'ACL': "public-read"})
+        self._client.upload_fileobj(
+            byte_io,
+            bucket,
+            dst_thumb,
+            ExtraArgs={'ContentType': 'image/webp', 'ACL': "public-read"}
+        )
         return dst_thumb
 
     def upload_file(self, src, dst) -> tuple[str, str, str]:

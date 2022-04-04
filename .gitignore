@@ -10,7 +10,7 @@ output*.json
 out/
 /storage/
 scan.json
-app/settings.toml
+web/settings.toml
 cache/
 tea/
 data/

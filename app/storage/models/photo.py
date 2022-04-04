@@ -1,5 +1,5 @@
 from peewee import *
-from api.storage.models import BaseModel
+from app.storage.models import BaseModel
 
 
 class Photo(BaseModel):
@@ -9,4 +9,6 @@ class Photo(BaseModel):
     timestamp = DateTimeField(index=True)
     width = IntegerField()
     height = IntegerField()
+    latitude = FloatField()
+    longitude = FloatField()
 
