@@ -4,6 +4,7 @@ import click
 import sys
 from sync.local import Local
 from sync.upload import Uploader, Method
+from sync.exif import Exif
 
 
 class SyncCommands(click.Group):
@@ -46,6 +47,18 @@ def cmd_upload(path):
         dst = f.relative_to(path)
         uploader.add(src.as_posix(), dst.as_posix())
         break
+
+
+@cli.command('exif')
+@click.argument("path")
+def cmd_exif(path):
+    path = Path(path).absolute()
+    if not path.exists():
+        raise NotFoundErr
+    it = Local(path)
+    for f in it:
+        ex = Exif(f)
+        print(f, ex.timestamp, ex.width, ex.height)
 
 
 @cli.command('quit', short_help="Quit")

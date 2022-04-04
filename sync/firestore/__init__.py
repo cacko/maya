@@ -26,8 +26,7 @@ class FirebaseConfig:
 
 class FirestoreMeta(type):
     _instance: 'Firestore' = None
-    DATETIME_FIELDS = ['datetime_original', 'datetime']
-    DATETIME_FORMAT = ['%Y:%m:%d %H:%M:%S', '%Y-%m-%d %H:%M:%S']
+
 
     def __call__(cls, *args, **kwds):
         if not cls._instance:
@@ -60,48 +59,6 @@ class Firestore(object, metaclass=FirestoreMeta):
             self.__batch.commit()
         return self.__batch
 
-    @staticmethod
-    def get_exif(src):
-        try:
-            exif = Image(src)
-        except ValueError:
-            return {}
-        if not exif.has_exif:
-            return {}
-        res = {}
-        for k in exif.list_all():
-            try:
-                res.setdefault(k, str(exif.get(k)))
-            except ZeroDivisionError:
-                pass
-            except ValueError:
-                pass
-        return res
-
-    @staticmethod
-    def get_ts(exif: Image):
-        attrs = exif.list_all()
-        for f in Firestore.DATETIME_FIELDS:
-            if f in attrs:
-                return exif.get(f)
-
-    @staticmethod
-    def get_dt(ts: str):
-        for f in Firestore.DATETIME_FORMAT:
-            try:
-                return datetime.strptime(ts, f).replace(tzinfo=timezone.utc)
-            except ValueError:
-                pass
-        return datetime.now(tz=timezone.utc)
-
-    @staticmethod
-    def get_timestamp(src):
-        exif = Image(src)
-        if not exif.has_exif:
-            return datetime.now(tz=timezone.utc)
-        if ts := Firestore.get_ts(exif):
-            return Firestore.get_dt(ts)
-        return datetime.now(tz=timezone.utc)
 
     def store_document(self, src, full, thumb):
         doc_id = blake2s(digest_size=20)
