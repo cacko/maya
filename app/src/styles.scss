@@ -1,4 +1,187 @@
-/* You can add global styles to this file, and also import other style files */
+@use "@angular/material" as mat;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@include mat.core();
+$theme-primary: mat.define-palette(mat.$blue-grey-palette, 500);
+$theme-accent: mat.define-palette(mat.$blue-palette, 700, 600, 500);
+$theme-warn: mat.define-palette(mat.$red-palette);
+$custom-typography: mat.define-typography-config(
+  $font-family: '"Syne Mono", monospace;',
+);
+
+:root[dir="dark_mode"] {
+  $theme: mat.define-dark-theme(
+      (
+        color: (
+          primary: $theme-primary,
+          accent: $theme-accent,
+          warn: $theme-warn,
+        ),
+        typography: $custom-typography,
+      )
+  );
+  @include mat.all-component-colors($theme);
+  @include mat.all-component-typographies($theme);
+}
+
+:root[dir="light_mode"] {
+  $theme: mat.define-light-theme(
+      (
+        color: (
+          primary: $theme-primary,
+          accent: $theme-accent,
+          warn: $theme-warn,
+        ),
+        typography: $custom-typography,
+      )
+  );
+
+  @include mat.all-component-colors($theme);
+  @include mat.all-component-typographies($theme);
+}
+
+@import "~@angular/cdk/overlay-prebuilt.css";
+@import "./terminal.css";
+@import "./mixins.scss";
+
+:root {
+  --global-font-size: 17px;
+  --global-line-height: 1.4em;
+  --global-space: 10px;
+  --font-stack: "Syne Mono", monospace, serif;
+  --mono-font-stack: "Syne Mono", monospace, serif;
+  --background-color: #303030;
+  --page-width: 60em;
+  --font-color: #e8e9ed;
+  --invert-font-color: #303030;
+  --secondary-color: #374764;
+  --tertiary-color: #a3abba;
+  --primary-color: #4cbfaf;
+  --error-color: #ff3c74;
+  --progress-bar-background: #3f3f44;
+  --progress-bar-fill: #62c4ff;
+  --code-bg-color: #3f3f44;
+  --input-style: solid;
+  --display-h1-decoration: none;
+  --list-hover-font-color: #fff;
+
+  .mat-paginator {
+    background: var(--background-color);
+    color: var(--font-color);
+
+    .mat-button.mat-primary.mat-button-disabled,
+    .mat-button.mat-accent.mat-button-disabled,
+    .mat-button.mat-warn.mat-button-disabled,
+    .mat-button.mat-button-disabled.mat-button-disabled,
+    .mat-icon-button.mat-primary.mat-button-disabled,
+    .mat-icon-button.mat-accent.mat-button-disabled,
+    .mat-icon-button.mat-warn.mat-button-disabled,
+    .mat-icon-button.mat-button-disabled.mat-button-disabled,
+    .mat-stroked-button.mat-primary.mat-button-disabled,
+    .mat-stroked-button.mat-accent.mat-button-disabled,
+    .mat-stroked-button.mat-warn.mat-button-disabled,
+    .mat-stroked-button.mat-button-disabled.mat-button-disabled {
+      color: var(--tertiary-color);
+    }
+  }
+}
+
+:root[dir="light_mode"] {
+  --global-font-size: 17px;
+  --global-line-height: 1.4em;
+  --global-space: 10px;
+  --font-stack: "Syne Mono", monospace, serif;
+  --mono-font-stack: "Syne Mono", monospace, serif;
+  --background-color: #b7b0b0;
+  --page-width: 60em;
+  --font-color: #190910;
+  --invert-font-color: #f7f7f7;
+  --secondary-color: #ce9625;
+  --tertiary-color: #aaaab7;
+  --primary-color: #23095e;
+  --error-color: #bb0047;
+  --progress-bar-background: #d4d4d4;
+  --progress-bar-fill: #5e5e5e;
+  --code-bg-color: #ffffff;
+  --input-style: solid;
+  --list-hover-font-color: #fff;
+
+  .mat-paginator {
+    background: var(--background-color);
+    color: var(--font-color);
+
+    .mat-button.mat-primary.mat-button-disabled,
+    .mat-button.mat-accent.mat-button-disabled,
+    .mat-button.mat-warn.mat-button-disabled,
+    .mat-button.mat-button-disabled.mat-button-disabled,
+    .mat-icon-button.mat-primary.mat-button-disabled,
+    .mat-icon-button.mat-accent.mat-button-disabled,
+    .mat-icon-button.mat-warn.mat-button-disabled,
+    .mat-icon-button.mat-button-disabled.mat-button-disabled,
+    .mat-stroked-button.mat-primary.mat-button-disabled,
+    .mat-stroked-button.mat-accent.mat-button-disabled,
+    .mat-stroked-button.mat-warn.mat-button-disabled,
+    .mat-stroked-button.mat-button-disabled.mat-button-disabled {
+      color: var(--tertiary-color);
+    }
+  }
+}
+
+:root[dir="dark_mode"] {
+  --global-font-size: 17px;
+  --global-line-height: 1.4em;
+  --global-space: 10px;
+  --font-stack: "Syne Mono", monospace, serif;
+  --mono-font-stack: "Syne Mono", monospace, serif;
+  --background-color: #303030;
+  --page-width: 60em;
+  --font-color: #e8e9ed;
+  --invert-font-color: #303030;
+  --secondary-color: #374764;
+  --tertiary-color: #a3abba;
+  --primary-color: #4cbfaf;
+  --error-color: #ff3c74;
+  --progress-bar-background: #3f3f44;
+  --progress-bar-fill: #4cbfaf;
+  --code-bg-color: #3f3f44;
+  --input-style: solid;
+  --display-h1-decoration: none;
+  --list-hover-font-color: #fff;
+
+  .mat-paginator {
+    background: var(--background-color);
+    color: var(--font-color);
+
+    .mat-button.mat-primary.mat-button-disabled,
+    .mat-button.mat-accent.mat-button-disabled,
+    .mat-button.mat-warn.mat-button-disabled,
+    .mat-button.mat-button-disabled.mat-button-disabled,
+    .mat-icon-button.mat-primary.mat-button-disabled,
+    .mat-icon-button.mat-accent.mat-button-disabled,
+    .mat-icon-button.mat-warn.mat-button-disabled,
+    .mat-icon-button.mat-button-disabled.mat-button-disabled,
+    .mat-stroked-button.mat-primary.mat-button-disabled,
+    .mat-stroked-button.mat-accent.mat-button-disabled,
+    .mat-stroked-button.mat-warn.mat-button-disabled,
+    .mat-stroked-button.mat-button-disabled.mat-button-disabled {
+      color: var(--tertiary-color);
+    }
+  }
+}
+
+:root {
+  --global-font-color: var(--font-color);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+app-root {
+  flex: 1;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}

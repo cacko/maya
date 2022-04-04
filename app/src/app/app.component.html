@@ -1,4 +1,6 @@
+<div class="container">
 
-<gallery gallerize [items]="images"></gallery>
+  <app-card *ngFor="let image of images" [image]="image" class="card" [ngClass]="image.style"></app-card>
+</div>
 
 <router-outlet></router-outlet>

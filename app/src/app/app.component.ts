@@ -2,8 +2,7 @@ import { Component } from "@angular/core";
 import { PhotoEntity } from "./entity/photo";
 import { AuthService } from "./service/auth.service";
 import { PhotosService } from "./service/photos.service";
-import { ImageEntity } from "./entity/image";
-import { GalleryItem, ImageItem } from "ng-gallery";
+import { Image } from "./entity/image";
 
 @Component({
   selector: "app-root",
@@ -12,7 +11,7 @@ import { GalleryItem, ImageItem } from "ng-gallery";
 })
 export class AppComponent {
   title = "app";
-  images: GalleryItem[] = [];
+  images: Image[] = [];
 
   constructor(
     public auth: AuthService,
@@ -22,11 +21,7 @@ export class AppComponent {
       if (res) {
         this.photos.photos.subscribe(data => {
           data.forEach((photo) => {
-            this.images.push(new ImageItem({
-              thumb: `https://cdn.cacko.net/${photo.thumb}`,
-              src: `https://cdn.cacko.net/${photo.full}`
-            }))
-            ;
+            this.images.push(new Image(photo));
           });
         });
         this.photos.load();
