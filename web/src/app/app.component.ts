@@ -1,12 +1,11 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, HostListener, OnInit } from "@angular/core";
 import { AuthService } from "./service/auth.service";
 import { PhotosService } from "./service/photos.service";
-import { Image } from "./entity/image";
 import { SwUpdate } from "@angular/service-worker";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { interval } from "rxjs";
 import { ImageService } from "./service/image.service";
-import { ActivatedRoute } from "@angular/router";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-root",
@@ -30,7 +29,7 @@ export class AppComponent implements OnInit {
     public imageService: ImageService,
     private swUpdate: SwUpdate,
     private snackBar: MatSnackBar,
-    private route: ActivatedRoute
+    private router: Router
   ) {
     if (this.swUpdate.isEnabled) {
       this.swUpdate.available.subscribe((evt) => {
@@ -73,8 +72,11 @@ export class AppComponent implements OnInit {
     this.photos.load(++this.page);
   }
 
-  onScrollUp() {
-    console.log("goiong down");
-
+  @HostListener("document:keydown.escape", ["$event"])
+  onEscape() {
+    if (this.selected) {
+      this.router.navigate(["/"], { preserveFragment: true });
+      this.photos.shrink();
+    }
   }
 }
