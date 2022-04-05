@@ -9,8 +9,16 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   grid-auto-rows: 240px;
   padding: 0;
-  .card {
 
+  .card {
+    transform: matrix(1, 0, 0, 1, 0, 0);
+    transition: all 300ms;
+
+    &:hover {
+      transform: matrix(1.05, 0, 0, 1.05, 0, 0);
+      z-index: 1;
+      border-radius: 1em;
+    }
   }
 
   @media screen and (min-width: 600px) {
