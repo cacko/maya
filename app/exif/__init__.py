@@ -21,18 +21,18 @@ class ExifMeta(type):
     DATETIME_FORMAT = ['%Y:%m:%d %H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y:%m:%d:%H:%M:%S']
     WIDTH_FIELD = "EXIF ExifImageLength"
     HEIGHT_FIELD = "EXIF ExifImageWidth"
-    _r = re.compile(r'[^\d](20\d{2,})')
+    _r = re.compile(r'[^\d](20[012]\d{1,})')
 
     def extract_ts(cls, path: Path):
         matches = cls._r.findall(path.as_posix())
         if not len(matches):
-            return datetime.now(tz=timezone.utc)
+            return datetime(2000, 1, 1, 10, 10, 10, tzinfo=timezone.utc)
         for ts in sorted(matches):
             if len(ts) == 4:
                 return datetime(int(ts), 1, 1, 10, 10, 10, tzinfo=timezone.utc)
             if len(ts) == 8:
                 return datetime(int(ts[:4]), int(ts[4:6]), int(ts[6:]), 10, 10, 10, tzinfo=timezone.utc)
-        return datetime.now(tz=timezone.utc)
+        return datetime(2000, 1, 1, 10, 10, 10, tzinfo=timezone.utc)
 
 
 class Exif(object, metaclass=ExifMeta):

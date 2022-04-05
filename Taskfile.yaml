@@ -49,6 +49,20 @@ tasks:
     cmds:
       - direnv exec . poetry run gunicorn "app:create_app()"
 
+  install:
+    desc: calls poetry install and npm ci
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};poetry install'
+
+  deploy:
+    desc: shortcut for stop -> push -> pull -> restart
+    cmds:
+      - task: stop
+      - task: push
+      - task: pull
+      - task: install
+      - task: restart
+
   cli:
     desc: run flask cli locally
     cmds:

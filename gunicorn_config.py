@@ -1,6 +1,6 @@
 bind = '0.0.0.0:6665'
 backlog = 2048
-workers = 1
+workers = 5
 worker_class = "gevent"
 worker_connections = 100
 timeout = 30
