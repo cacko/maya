@@ -22,7 +22,7 @@ class ISOFlask(Flask):
 
 def create_app(test_config=None):
     app = ISOFlask(__name__, instance_relative_config=True)
-    CORS(app, origins=["http://localhost:4200", "https://maya.cacko.net"], allow_headers=["etag", "last-modified"])
+    CORS(app, origins=["http://localhost:4200", "https://maya.cacko.net"], expose_headers=["etag", "last-modified"])
     app.config.from_envvar("FLASK_CONFIG")
     if app.debug or os.environ.get("FLASK_RUN_FROM_CLI", None):
         app.logger.setLevel(logging.DEBUG)
