@@ -1,5 +1,9 @@
 import { PhotoEntity } from "./photo";
 
+
+
+import { Md5 } from "ts-md5/dist/md5";
+
 export class Image {
 
   private data: PhotoEntity;
@@ -7,6 +11,10 @@ export class Image {
 
   constructor(data: PhotoEntity) {
     this.data = data;
+  }
+
+  public get id(): string {
+    return Md5.hashStr(this.data.full);
   }
 
   public get thumb(): string {

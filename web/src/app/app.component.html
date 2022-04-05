@@ -1,12 +1,13 @@
 <app-loader *ngIf="loading"></app-loader>
 
 <div class="container" infiniteScroll
-     [infiniteScrollDistance]="2"
-     [infiniteScrollUpDistance]="1.5"
-     [infiniteScrollThrottle]="50"
+     [infiniteScrollDistance]="scrollDistance"
+     [infiniteScrollUpDistance]="scrollUpDistance"
+     [infiniteScrollThrottle]="throttle"
      (scrolled)="onScrollDown()"
-     (scrolledUp)="onScrollUp()">
-  <app-card *ngFor="let image of images" [image]="image" class="card" [ngClass]="image.style"></app-card>
+     [attr.expanded]="selected">
+  <app-card *ngFor="let image of imageService.images" [image]="image" class="card" [ngClass]="image.style"
+            [attr.id]="image.id" [attr.expanded]="selected"></app-card>
 
 </div>
 

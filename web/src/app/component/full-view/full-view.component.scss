@@ -1,0 +1,22 @@
+:host {
+  .full-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+
+    .image {
+      height: 100%;
+      width: 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+
+      button {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+    }
+  }
+
+}

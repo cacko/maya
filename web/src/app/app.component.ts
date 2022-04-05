@@ -1,28 +1,36 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { AuthService } from "./service/auth.service";
 import { PhotosService } from "./service/photos.service";
 import { Image } from "./entity/image";
 import { SwUpdate } from "@angular/service-worker";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { interval } from "rxjs";
+import { ImageService } from "./service/image.service";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.scss"]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = "app";
-  images: Image[] = [];
   page = 1;
   loading: boolean = true;
   updating = true;
+  selected: string | undefined | null = null;
+
+  throttle = 50;
+  scrollDistance = 2;
+  scrollUpDistance = 1.5;
 
   constructor(
     public auth: AuthService,
     public photos: PhotosService,
+    public imageService: ImageService,
     private swUpdate: SwUpdate,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute
   ) {
     if (this.swUpdate.isEnabled) {
       this.swUpdate.available.subscribe((evt) => {
@@ -43,13 +51,20 @@ export class AppComponent {
     this.auth.isLogged.subscribe(res => {
       if (res) {
         this.photos.photos.subscribe(data => {
-          data.forEach((photo) => {
-            this.images.push(new Image(photo));
-          });
+          this.imageService.append(data);
           this.loading = false;
         });
         this.photos.load();
       }
+    });
+  }
+
+  ngOnInit(): void {
+    this.selected = null;
+    this.photos.photo.subscribe((selected) => {
+      setTimeout(() => {
+        this.selected = selected;
+      }, 0);
     });
   }
 

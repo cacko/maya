@@ -11,7 +11,12 @@ export class PhotosService {
   private photosSubject = new Subject<PhotoEntity[]>();
   photos = this.photosSubject.asObservable();
 
+  private photoSubject = new Subject<string | null>();
+  photo = this.photoSubject.asObservable();
+
   private readonly API_BASE = "https://photos.cacko.net/maya/rest";
+
+  page = 1;
 
   constructor(
     private httpClient: HttpClient
@@ -20,8 +25,9 @@ export class PhotosService {
   }
 
   load(page = 1) {
+    this.page = page;
     this.httpClient.get(`${this.API_BASE}/photos.json`, {
-      params: {per_page: 100, page}
+      params: { per_page: 100, page }
     }).subscribe({
       next: (data) => {
         const items = data as PhotoEntity[];
@@ -30,5 +36,14 @@ export class PhotosService {
         console.error(err);
       }
     });
+  }
+
+
+  expand(id?: string) {
+    id && this.photoSubject.next(id);
+  }
+
+  shrink() {
+    this.photoSubject.next(null);
   }
 }

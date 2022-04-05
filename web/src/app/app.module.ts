@@ -17,18 +17,26 @@ import { ServiceWorkerModule } from "@angular/service-worker";
 import { LoaderComponent } from "./component/loader/loader.component";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
+import { MatRippleModule } from "@angular/material/core";
+import { MatButtonModule } from "@angular/material/button";
+import { FullViewComponent } from "./component/full-view/full-view.component";
+import { MatIconModule } from "@angular/material/icon";
 
 
 const MATERIALS = [
   MatProgressBarModule,
-  MatSnackBarModule
+  MatSnackBarModule,
+  MatRippleModule,
+  MatButtonModule,
+  MatIconModule
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
     CardComponent,
-    LoaderComponent
+    LoaderComponent,
+    FullViewComponent
   ],
   imports: [
     BrowserModule,

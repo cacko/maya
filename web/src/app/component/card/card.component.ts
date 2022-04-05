@@ -1,5 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { Image } from "../../entity/image";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-card",
@@ -10,7 +11,7 @@ export class CardComponent {
 
   @Input() image?: Image;
 
-  constructor() {
+  constructor(private router: Router) {
   }
 
   style(): { [key: string]: string } {
@@ -18,6 +19,10 @@ export class CardComponent {
       "background-image": `url("${this.image?.thumb}")`,
       "background-size": "cover"
     };
+  }
+
+  onClick() {
+    this.router.navigate(["full-view", this.image?.id], { preserveFragment: true });
   }
 
 }
