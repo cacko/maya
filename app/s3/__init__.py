@@ -39,12 +39,13 @@ class S3Meta(type):
     def register(cls, app: 'Flask'):
         cls.config = S3Config.from_dict(app.config.get_namespace("AWS_"))
 
-    def upload(cls, item: S3Upload) -> tuple[str, str, str]:
+    def upload(cls, item: S3Upload) -> tuple[str, str, str, str]:
         return cls().upload_file(item.src, item.dst, item.skip_upload)
 
-    def thumb(cls, item: S3Upload) -> tuple[str, str, str]:
+    def thumb(cls, item: S3Upload) -> tuple[str, str, str, str]:
         thumb = cls().upload_thumb(item.src, item.dst, item.skip_upload)
-        return item.src, src_key(item.dst), thumb
+        folder = Path(item.dst).parent.as_posix()
+        return folder, item.src, src_key(item.dst), thumb
 
 
 class S3(object, metaclass=S3Meta):
@@ -81,10 +82,11 @@ class S3(object, metaclass=S3Meta):
         )
         return dst_thumb
 
-    def upload_file(self, src, dst, skip_upload=False) -> tuple[str, str, str]:
+    def upload_file(self, src, dst, skip_upload=False) -> tuple[str, str, str, str]:
         mime = filetype.guess_mime(src)
+        folder = Path(dst).parent.as_posix()
         if not skip_upload:
             bucket = self._config.storage_bucket_name
             self._client.upload_file(src, bucket, src_key(dst), ExtraArgs={'ContentType': mime, 'ACL': "public-read"})
         dst_thumb = self.upload_thumb(src, dst, skip_upload)
-        return src, src_key(dst), dst_thumb
+        return folder, src, src_key(dst), dst_thumb

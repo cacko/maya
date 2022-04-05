@@ -25,6 +25,7 @@ psycopg2 = "^2.9.3"
 Flask = "^2.1.1"
 Flask-Cors = "^3.0.10"
 ExifRead = "^2.3.2"
+gunicorn = {extras = ["gevent"], version = "^20.1.0"}
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.6.0"

@@ -13,15 +13,15 @@ class Method(Enum):
 
 
 def upload(item: S3Upload, progress: tqdm):
-    src, full, thumb = S3.upload(item)
+    folder, src, full, thumb = S3.upload(item)
     progress.update(1)
-    return src, full, thumb
+    return folder, src, full, thumb
 
 
 def upload_thumbs(item: S3Upload, progress: tqdm):
-    src, full, thumb = S3.thumb(item)
+    folder, src, full, thumb = S3.thumb(item)
     progress.update(1)
-    return src, full, thumb
+    return folder, src, full, thumb
 
 
 class Uploader:
@@ -61,6 +61,8 @@ class Uploader:
             items.append(self.queue.pop(0))
             if len(items) == self.POOL_SIZE:
                 break
+        if not len(items):
+            return None
         if self.method == Method.THUMB:
             return map(lambda item: executor.submit(upload_thumbs, item, self.progress), items)
         else:
@@ -71,13 +73,16 @@ class Uploader:
             return
         self.isRunning = True
         with ThreadPoolExecutor(max_workers=self.POOL_SIZE) as executor:
-            for future in as_completed(self._job(executor)):
+            tasks = self._job(executor)
+            if not tasks:
+                return
+            for future in as_completed(tasks):
                 try:
-                    src, full, thumb = future.result()
+                    folder, src, full, thumb = future.result()
                     if src not in self.processed:
                         self.tracking.write(f"{src}\n")
                     if self.callback is not None:
-                        self.callback(src, full, thumb)
+                        self.callback(folder, src, full, thumb)
                 except Exception as e:
                     current_app.logger.error(e, exc_info=True)
             self.isRunning = False

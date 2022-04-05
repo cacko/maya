@@ -2,17 +2,27 @@ from flask import Blueprint
 from pathlib import Path
 from app.upload import Uploader
 from app.storage import Storage
+from app.storage.models import Photo
 from app.local import Local
 from app.exif import Exif
 import click
-from typing import Generator
 
 bp = Blueprint("cli", __name__)
 
 
-def post_upload(src, full, thumb):
+def post_upload(folder, src, full, thumb):
     ex = Exif(Path(src))
-    print(src, full, thumb, ex.width, ex.height, ex.timestamp, ex.gps)
+    with Storage.db.atomic():
+        Photo.insert(
+            folder=folder,
+            full=full,
+            thumb=thumb,
+            timestamp=ex.timestamp,
+            width=ex.width,
+            height=ex.height,
+            latitude=ex.gps.latitude,
+            longitude=ex.gps.longitude
+        ).on_conflict_ignore().execute()
 
 
 @bp.cli.command('process')

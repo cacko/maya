@@ -6,26 +6,50 @@ vars:
   PROJECT: maya
 
 tasks:
+  stop:
+    desc: stop the server
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user stop {{.PROJECT}}'
+
+  restart:
+    desc: restart the service
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user restart {{.PROJECT}}'
 
   push:
     desc: commit and pushes current changes
     cmds:
-      - git add .  || true
-      - git commit -am "$(curl -s https://commit.cacko.net/index.txt)" || true
-      - git push || true
+      - git add .  2>&1 > /dev/null
+      - git commit -am "$(curl -s https://commit.cacko.net/index.txt)" 2>&1 > /dev/null
+      - git push  2>&1 > /dev/null
 
-  deploy:
-    desc: shortcut for stop -> push -> pull -> restart
+  pull:
+    desc: pulls from git
     cmds:
-      - task: stop
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};git reset --hard;git pull'
+
+  pp:
+    desc: push and pull
+    cmds:
       - task: push
       - task: pull
-      - task: install
-      - task: restart
+
+  logs:
+    desc: monitor logs
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user -u {{.PROJECT}} -f' | ccze -A
+
+  serve:
+    desc: start gunicorn
+    cmds:
+      - poetry run flask run
+
+  systemd-exec:
+    desc: systemd exec
+    cmds:
+      - direnv exec . poetry run gunicorn "app:create_app()"
 
   cli:
     desc: run flask cli locally
     cmds:
       - poetry run flask cli {{.CLI_ARGS}}
-
-# pip install --no-binary :all: grpcio --ignore-installed and pip install --no-binary :all: grpcio-tools --ignore-installed
