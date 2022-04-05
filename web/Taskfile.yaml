@@ -24,6 +24,14 @@ tasks:
     cmds:
       - firebase deploy --token="$FIREBASE_TOKEN"
 
+
+  generate:
+    desc: generate assets
+    dir: ./src
+    cmds:
+      - pwa-asset-generator icon.png ./assets -i ./index.html -m ./manifest.webmanifest -b "#282828" --favicon
+
+
   release:
     desc: release
     cmds:
