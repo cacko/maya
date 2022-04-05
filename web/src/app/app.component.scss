@@ -5,7 +5,7 @@
 
 .container {
   display: grid;
-  gap: 0rem;
+  gap: 0.5rem;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   grid-auto-rows: 240px;
   padding: 0;
@@ -15,7 +15,7 @@
     transition: all 300ms;
 
     &:hover {
-      transform: matrix(1.05, 0, 0, 1.05, 0, 0);
+      transform: matrix(1.15, 0, 0, 1.15, 0, 0);
       z-index: 1;
       border-radius: 1em;
     }
