@@ -65,6 +65,11 @@ export class AppComponent implements OnInit {
         this.selected = selected;
       }, 0);
     });
+    this.imageService.loading.subscribe(val => {
+      setTimeout(() => {
+        this.loading = !!val;
+      }, 0);
+    });
   }
 
   onScrollDown() {
