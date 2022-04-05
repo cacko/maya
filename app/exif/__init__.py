@@ -89,6 +89,35 @@ class Exif(object, metaclass=ExifMeta):
             pass
         return GPSCoordinates()
 
+    def fix_orientation(self):
+        tags = self.__info
+        if not self.__info:
+            return False
+        im = Image.open(self.__path.resolve().as_posix())
+        fixed = False
+        if "Image Orientation" in tags.keys():
+            orientation = tags["Image Orientation"]
+            val = orientation.values
+            if 5 in val:
+                val += [4, 6]
+            if 7 in val:
+                val += [4, 8]
+            if 3 in val:
+                im = im.transpose(Image.ROTATE_180)
+                fixed |= True
+            if 4 in val:
+                im = im.transpose(Image.FLIP_TOP_BOTTOM)
+                fixed |= True
+            if 6 in val:
+                im = im.transpose(Image.ROTATE_270)
+                fixed |= True
+            if 8 in val:
+                im = im.transpose(Image.ROTATE_90)
+                fixed |= True
+        if fixed:
+            im.save(self.__path.resolve().as_posix())
+        return fixed
+
     def __del__(self):
         if self.__image:
             self.__image.close()
