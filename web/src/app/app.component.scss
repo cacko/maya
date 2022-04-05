@@ -1,9 +1,14 @@
+.content {
+  height: 100vh;
+  overflow: auto;
+}
+
 .container {
   display: grid;
-  gap: 1rem;
+  gap: 0rem;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   grid-auto-rows: 240px;
-
+  padding: 0;
   .card {
 
   }

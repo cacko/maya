@@ -1,17 +1,17 @@
 import { Component } from "@angular/core";
-import { PhotoEntity } from "./entity/photo";
 import { AuthService } from "./service/auth.service";
 import { PhotosService } from "./service/photos.service";
 import { Image } from "./entity/image";
 
 @Component({
-  selector: "web-root",
+  selector: "app-root",
   templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.scss"]
+  styleUrls: ["./app.component.scss"],
 })
 export class AppComponent {
   title = "app";
   images: Image[] = [];
+  page = 1;
 
   constructor(
     public auth: AuthService,
@@ -29,5 +29,13 @@ export class AppComponent {
     });
   }
 
+  onScrollDown() {
+    console.log("goiong down");
+    this.photos.load(++this.page);
+  }
 
+  onScrollUp() {
+    console.log("goiong down");
+
+  }
 }

@@ -18,9 +18,9 @@ export class Image {
   }
 
   public get style(): string {
-    const ratio = this.data.info.pixel_x_dimension / this.data.info.pixel_y_dimension;
+    const ratio = this.data.width / this.data.height;
 
-    if (ratio > 16 / 9) {
+    if (ratio > 4 / 3) {
       return "card-wide";
     }
 

@@ -1,6 +1,12 @@
-<div class="container">
-
+<div class="container" infiniteScroll
+     [infiniteScrollDistance]="2"
+     [infiniteScrollUpDistance]="1.5"
+     [infiniteScrollThrottle]="50"
+     (scrolled)="onScrollDown()"
+     (scrolledUp)="onScrollUp()">
   <app-card *ngFor="let image of images" [image]="image" class="card" [ngClass]="image.style"></app-card>
+
 </div>
+
 
 <router-outlet></router-outlet>

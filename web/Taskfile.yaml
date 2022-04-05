@@ -1,0 +1,32 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  build:
+    desc: build
+    cmds:
+      - rm -rf dist
+      - ng build --configuration production --progress
+
+  push:
+    desc: push
+    cmds:
+      - git add .
+      - git commit -am "$(curl -s https://commit.cacko.net/index.txt)" || true
+      - git push || true
+
+  deploy:
+    desc: deploy to firebase
+    cmds:
+      - firebase deploy --token="$FIREBASE_TOKEN"
+
+  release:
+    desc: release
+    cmds:
+      - task: build
+      - task: deploy
+      - task: push

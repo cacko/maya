@@ -11,7 +11,8 @@ import { PhotosService } from "./service/photos.service";
 import { SETTINGS as AUTH_SETTINGS } from "@angular/fire/compat/auth";
 import { AngularFireModule } from "@angular/fire/compat";
 import { CardComponent } from "./component/card/card.component";
-import { ScrollingModule } from "@angular/cdk/scrolling";
+import { HttpClientModule } from "@angular/common/http";
+import { InfiniteScrollModule } from "ngx-infinite-scroll";
 
 @NgModule({
   declarations: [
@@ -20,8 +21,9 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
   ],
   imports: [
     BrowserModule,
-    ScrollingModule,
+    InfiniteScrollModule,
     AppRoutingModule,
+    HttpClientModule,
     BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebase),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
