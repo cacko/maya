@@ -16,13 +16,19 @@
   }
 
 
-    &[expanded] {
+  &[expanded] {
     display: flex;
     overflow-x: auto;
     height: 50px;
     position: fixed;
     bottom: 0;
     gap: 0;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
     .card {
       width: 50px;
       flex-shrink: 0;
