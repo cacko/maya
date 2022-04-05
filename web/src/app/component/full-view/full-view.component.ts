@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { PhotosService } from "../../service/photos.service";
-import { Image } from "../../entity/image";
+import { Photo } from "../../entity/photo";
 import { ImageService } from "../../service/image.service";
 
 @Component({
@@ -12,7 +12,7 @@ import { ImageService } from "../../service/image.service";
 export class FullViewComponent implements OnInit {
 
   id: string = "";
-  image: Image | undefined | null;
+  image: Photo | undefined | null;
 
   constructor(
     private route: ActivatedRoute,
@@ -24,10 +24,19 @@ export class FullViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
+      setTimeout(() => {
+        this.images.startLoader();
+      },0);
       this.id = params["id"];
       this.images.byId(this.id).then((image) => {
-        this.image = image;
-        this.photos.expand(this.id);
+        const im = new Image();
+        im.onload = () => {
+          this.image = image;
+          this.photos.expand(this.id);
+        };
+        if (image) {
+          im.src = image.src;
+        }
       });
     });
   }
@@ -40,7 +49,6 @@ export class FullViewComponent implements OnInit {
   }
 
   onClose() {
-    this.router.navigate(["/"], { preserveFragment: true });
     this.photos.shrink();
   }
 

@@ -6,6 +6,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { interval } from "rxjs";
 import { ImageService } from "./service/image.service";
 import { Router } from "@angular/router";
+import { ViewportScroller } from "@angular/common";
 
 @Component({
   selector: "app-root",
@@ -29,7 +30,8 @@ export class AppComponent implements OnInit {
     public imageService: ImageService,
     private swUpdate: SwUpdate,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private scroller: ViewportScroller
   ) {
     if (this.swUpdate.isEnabled) {
       this.swUpdate.available.subscribe((evt) => {
@@ -62,7 +64,13 @@ export class AppComponent implements OnInit {
     this.selected = null;
     this.photos.photo.subscribe((selected) => {
       setTimeout(() => {
+        const oldId = this.selected;
         this.selected = selected;
+        if (!this.selected && oldId) {
+          this.router.navigate([""], { fragment: oldId + "" });
+        } else {
+          this.imageService.endLoader();
+        }
       }, 0);
     });
     this.imageService.loading.subscribe(val => {
@@ -73,15 +81,14 @@ export class AppComponent implements OnInit {
   }
 
   onScrollDown() {
-    console.log("goiong down");
     this.photos.load(++this.page);
   }
 
   @HostListener("document:keydown.escape", ["$event"])
   onEscape() {
     if (this.selected) {
-      this.router.navigate(["/"], { preserveFragment: true });
       this.photos.shrink();
     }
   }
+
 }

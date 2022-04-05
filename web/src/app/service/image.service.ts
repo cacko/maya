@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Image } from "../entity/image";
-import { PhotoEntity } from "../entity/photo";
+import { Photo, PhotoEntity } from "../entity/photo";
 import { PhotosService } from "./photos.service";
 import { Subject } from "rxjs";
 
@@ -9,7 +8,7 @@ import { Subject } from "rxjs";
 })
 export class ImageService {
 
-  public images: Image[] = [];
+  public images: Photo[] = [];
   private ids: string[] = [];
 
   private loadingSubject = new Subject<boolean>();
@@ -22,25 +21,30 @@ export class ImageService {
 
   append(photos: PhotoEntity[]) {
     photos.forEach(photo => {
-      const image = new Image(photo);
+      const image = new Photo(photo);
       this.ids.push(image.id);
       this.images.push((image));
     });
   }
 
-  byId(id: string): Promise<Image | undefined> {
+  startLoader() {
     this.loadingSubject.next(true);
+  }
+
+  endLoader() {
+    this.loadingSubject.next(false);
+  }
+
+  byId(id: string): Promise<Photo | undefined> {
     return new Promise((resolve, reject) => {
       if (this.ids.includes(id)) {
-        this.loadingSubject.next(false);
         return resolve(this.images.find(i => i.id == id));
       }
       this.photoService.photos.subscribe(data => {
         const items = data as PhotoEntity[];
         items.forEach(i => {
-          const image = new Image(i);
+          const image = new Photo(i);
           if (image.id == id) {
-            this.loadingSubject.next(false);
             return resolve(image);
           }
         });
@@ -48,5 +52,4 @@ export class ImageService {
       });
     });
   }
-
 }

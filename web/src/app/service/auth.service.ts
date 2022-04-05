@@ -15,12 +15,10 @@ export class AuthService {
     private auth: Auth,
     private fireAuth: AngularFireAuth
   ) {
-    console.log("auth service");
     this.auth.onAuthStateChanged((user: User | null) => {
       this.loggedSubject.next(!!user?.isAnonymous);
     });
     this.fireAuth.signInAnonymously().then((user) => {
-      console.log(user);
       // this.loggedSubject.next(true);
     }).catch(e => {
       console.error((e));
