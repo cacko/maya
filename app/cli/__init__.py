@@ -1,52 +1,36 @@
 from flask import Blueprint
 from pathlib import Path
-from app.upload import Uploader, Method
+from app.upload import Uploader
+from app.storage import Storage
 from app.local import Local
 from app.exif import Exif
 import click
+from typing import Generator
 
 bp = Blueprint("cli", __name__)
 
 
-@bp.cli.command('upload_thumbs')
-@click.argument("path")
-def cmd_upload_thumbs(path):
-    path = Path(path).absolute()
-    if not path.exists():
-        raise FileNotFoundError
-    source = Path("processed")
-    photos = list(map(lambda x: x.strip(), source.read_text().split("\n")))
-    uploader = Uploader(len(photos), Method.THUMB)
-    for f in photos:
-        f = Path(f)
-        src = f.absolute()
-        dst = f.relative_to(path)
-        uploader.add(src.as_posix(), dst.as_posix())
+def post_upload(src, full, thumb):
+    ex = Exif(Path(src))
+    print(src, full, thumb, ex.width, ex.height, ex.timestamp, ex.gps)
 
 
-@bp.cli.command('upload')
+@bp.cli.command('process')
 @click.argument("path")
-def cmd_upload(path):
-    path = Path(path).absolute()
+def cmd_process(path):
+    path = Path(path).resolve()
     if not path.exists():
         raise FileNotFoundError
     it = Local(path)
-    uploader = Uploader(len(it))
+    uploader = Uploader(len(it), callback=post_upload)
     for f in it:
         src = f.absolute()
         dst = f.relative_to(path)
         uploader.add(src.as_posix(), dst.as_posix())
-        break
 
 
-@bp.cli.command('exif')
-@click.argument("path")
-def cmd_exif(path):
-    path = Path(path).absolute()
-    if not path.exists():
-        raise FileNotFoundError
-    it = Local(path)
-    for f in it:
-        ex = Exif(f)
-        print(f, ex.timestamp, ex.width, ex.height)
-        break
+@bp.cli.command("dbinit")
+def cmd_dbinit():
+    from app.storage.models import Photo
+    with Storage.db as db:
+        db.create_tables([Photo])

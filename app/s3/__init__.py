@@ -23,6 +23,7 @@ class S3Config:
 class S3Upload:
     src: str
     dst: str
+    skip_upload: bool = False
 
 
 def src_key(dst):
@@ -39,10 +40,10 @@ class S3Meta(type):
         cls.config = S3Config.from_dict(app.config.get_namespace("AWS_"))
 
     def upload(cls, item: S3Upload) -> tuple[str, str, str]:
-        return cls().upload_file(item.src, item.dst)
+        return cls().upload_file(item.src, item.dst, item.skip_upload)
 
     def thumb(cls, item: S3Upload) -> tuple[str, str, str]:
-        thumb = cls().upload_thumb(item.src, item.dst)
+        thumb = cls().upload_thumb(item.src, item.dst, item.skip_upload)
         return item.src, src_key(item.dst), thumb
 
 
@@ -60,16 +61,18 @@ class S3(object, metaclass=S3Meta):
         )
         self._config = config
 
-    def upload_thumb(self, src, dst):
+    def upload_thumb(self, src, dst, skip_upload=False):
+        dst_thumb = Path(src_key(dst))
+        dst_thumb = dst_thumb.parent / f"{dst_thumb.stem}_{'x'.join(map(str, self.THUMB_SIZE))}.webp"
+        dst_thumb = dst_thumb.as_posix()
+        if skip_upload:
+            return dst_thumb
         bucket = self._config.storage_bucket_name
         img = Image.open(src)
         img.thumbnail(self.THUMB_SIZE)
         byte_io = BytesIO()
         img.save(byte_io, 'WEBP')
         byte_io.seek(0)
-        dst_thumb = Path(src_key(dst))
-        dst_thumb = dst_thumb.parent / f"{dst_thumb.stem}_{'x'.join(map(str, self.THUMB_SIZE))}.webp"
-        dst_thumb = dst_thumb.as_posix()
         self._client.upload_fileobj(
             byte_io,
             bucket,
@@ -78,10 +81,10 @@ class S3(object, metaclass=S3Meta):
         )
         return dst_thumb
 
-    def upload_file(self, src, dst) -> tuple[str, str, str]:
-        bucket = self._config.storage_bucket_name
-        dst = src_key(dst)
+    def upload_file(self, src, dst, skip_upload=False) -> tuple[str, str, str]:
         mime = filetype.guess_mime(src)
-        self._client.upload_file(src, bucket, dst, ExtraArgs={'ContentType': mime, 'ACL': "public-read"})
-        dst_thumb = self.upload_thumb(src, dst)
-        return src, dst, dst_thumb
+        if not skip_upload:
+            bucket = self._config.storage_bucket_name
+            self._client.upload_file(src, bucket, src_key(dst), ExtraArgs={'ContentType': mime, 'ACL': "public-read"})
+        dst_thumb = self.upload_thumb(src, dst, skip_upload)
+        return src, src_key(dst), dst_thumb

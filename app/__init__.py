@@ -36,7 +36,7 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # Storage.register(app)
+    Storage.register(app)
     S3.register(app)
 
     from . import cli

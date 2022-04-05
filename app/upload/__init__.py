@@ -4,6 +4,7 @@ from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
 from flask import current_app
+from typing import Callable
 
 
 class Method(Enum):
@@ -32,11 +33,13 @@ class Uploader:
     processed = []
     tracking = None
     method: Method = None
+    callback: Callable = None
 
-    def __init__(self, total, method: Method = Method.UPLOAD):
+    def __init__(self, total, method: Method = Method.UPLOAD, callback: Callable = None):
         self.method = method
         self.queue = []
         self.progress = tqdm(total=total)
+        self.callback = callback
 
         if self.method == Method.THUMB:
             tf = Path("processed_thumbs")
@@ -47,10 +50,9 @@ class Uploader:
             self.processed = list(map(lambda x: x.strip(), tf.read_text().split("\n")))
         self.tracking = tf.open("a")
 
-    def add(self, src: str, dst: str):
-        if src in self.processed:
-            return self.progress.update()
-        self.queue.append(S3Upload(src=src, dst=dst))
+    def add(self, src: str, dst: str, skip_upload=False):
+        skip_upload = any([skip_upload, src in self.processed])
+        self.queue.append(S3Upload(src=src, dst=dst, skip_upload=skip_upload))
         self.run()
 
     def _job(self, executor):
@@ -72,7 +74,10 @@ class Uploader:
             for future in as_completed(self._job(executor)):
                 try:
                     src, full, thumb = future.result()
-                    self.tracking.write(f"{src}\n")
+                    if src not in self.processed:
+                        self.tracking.write(f"{src}\n")
+                    if self.callback is not None:
+                        self.callback(src, full, thumb)
                 except Exception as e:
                     current_app.logger.error(e, exc_info=True)
             self.isRunning = False
