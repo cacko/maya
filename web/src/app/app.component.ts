@@ -216,6 +216,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   onEscape() {
     if (this.selected) {
       this.photos.shrink();
+      this.router.navigate(["", this.selected]);
     }
   }
 
