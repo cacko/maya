@@ -1,5 +1,22 @@
 <app-loader *ngIf="loading"></app-loader>
 
+<div class="filters" [attr.filtered]="query.length > 2 || null">
+  <mat-chip>
+    {{query}}
+    <button matChipRemove>
+      <mat-icon>cancel</mat-icon>
+    </button>
+  </mat-chip>
+</div>
+
+
+<div class="actions" [attr.expanded]="selected">
+  <button class="search" mat-mini-fab aria-label="Close full view" (click)="showSearch(1)">
+    <mat-icon>search</mat-icon>
+  </button>
+</div>
+
+
 <div class="container" infiniteScroll
      [infiniteScrollDistance]="scrollDistance"
      [infiniteScrollUpDistance]="scrollUpDistance"
@@ -13,3 +30,19 @@
 
 
 <router-outlet></router-outlet>
+
+<ng-template #searchForm>
+  <form [formGroup]="form">
+    <mat-form-field appearance="fill">
+      <mat-label>Search...</mat-label>
+      <input
+        matInput
+        #search
+        type="text"
+        formControlName="query"
+        name="query"
+        id="query"
+      />
+    </mat-form-field>
+  </form>
+</ng-template>

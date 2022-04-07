@@ -185,3 +185,32 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.search-backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.search-overlay {
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+
+  form {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+
+    mat-form-field {
+      width: 90%;
+      max-width: 500px;
+
+      input {
+        font-family: var(--font-stack);
+        font-size: 2em;
+        text-transform: lowercase;
+        font-variant: small-caps;
+      }
+    }
+  }
+}

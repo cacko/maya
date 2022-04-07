@@ -21,14 +21,19 @@ import { MatRippleModule } from "@angular/material/core";
 import { MatButtonModule } from "@angular/material/button";
 import { FullViewComponent } from "./component/full-view/full-view.component";
 import { MatIconModule } from "@angular/material/icon";
-
+import { MatInputModule } from "@angular/material/input";
+import { ReactiveFormsModule } from "@angular/forms";
+import { MatChipsModule } from "@angular/material/chips";
 
 const MATERIALS = [
   MatProgressBarModule,
   MatSnackBarModule,
   MatRippleModule,
   MatButtonModule,
-  MatIconModule
+  MatIconModule,
+  MatInputModule,
+  ReactiveFormsModule,
+  MatChipsModule
 ];
 
 @NgModule({

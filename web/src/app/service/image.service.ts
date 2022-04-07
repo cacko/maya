@@ -51,10 +51,15 @@ export class ImageService {
         try {
           this.photoService.load(++this.photoService.page);
         } catch (err) {
-          reject()
+          reject();
         }
       });
     });
+  }
+
+
+  clear() {
+    this.images = [];
   }
 
   previous(id: string) {
@@ -63,7 +68,7 @@ export class ImageService {
   }
 
   next(id: string) {
-    const idx = Math.max(0, this.ids.indexOf(id) +1);
+    const idx = Math.max(0, this.ids.indexOf(id) + 1);
     return this.ids[idx];
 
   }

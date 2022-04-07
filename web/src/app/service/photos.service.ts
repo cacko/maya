@@ -26,10 +26,14 @@ export class PhotosService {
 
   }
 
-  load(page = 1) {
-    this.page = page;
-    const scheme = environment.production ? 'https:' : 'http:';
-    this.httpClient.get(`${scheme}//${this.API_BASE}/photos/${page}.json`).subscribe({
+  load(page = 1, query: string = "") {
+    this.page = Math.max(1, page);
+    const scheme = environment.production ? "https:" : "http:";
+    if (query.length > 0) {
+      query = encodeURIComponent(query);
+      query += '/';
+    }
+    this.httpClient.get(`${scheme}//${this.API_BASE}/photos/${query}${page}.json`).subscribe({
       next: (data) => {
         const items = data as PhotoEntity[];
         this.photosSubject.next(items);
