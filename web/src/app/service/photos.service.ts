@@ -28,7 +28,7 @@ export class PhotosService {
 
   load(page = 1, query: string = "") {
     this.page = Math.max(1, page);
-    const scheme = environment.production ? "https:" : "http:";
+    const scheme = environment.production ? "https:" : "https:";
     if (query.length > 0) {
       query = encodeURIComponent(query);
       query = "/" + query;

@@ -4,12 +4,14 @@
     <button class="menu_action" mat-mini-fab aria-label="Close full view" (click)="onClose()">
       <mat-icon>close</mat-icon>
     </button>
-    <button class="previous navigation" mat-mini-fab aria-label="Close full view" (click)="onPrevious()">
-      <mat-icon>arrow_back_ios</mat-icon>
-    </button>
-    <button class="next navigation" mat-mini-fab aria-label="Close full view" (click)="onNext()">
-      <mat-icon>arrow_forward_ios</mat-icon>
-    </button>
+    <div class="navigation">
+      <button class="previous" mat-mini-fab aria-label="Close full view" (click)="onPrevious()">
+        <mat-icon>arrow_back_ios</mat-icon>
+      </button>
+      <button class="next" mat-mini-fab aria-label="Close full view" (click)="onNext()">
+        <mat-icon>arrow_forward_ios</mat-icon>
+      </button>
+    </div>
   </div>
 </div>
 

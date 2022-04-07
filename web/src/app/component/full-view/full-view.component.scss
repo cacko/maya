@@ -4,6 +4,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
 
 
 
@@ -46,20 +47,25 @@
         opacity: 0;
       }
 
-      button.navigation {
+      .navigation {
         position: absolute;
         opacity: 0;
-        &.previous {
-          top: calc(50% - 2rem);
-          left: 1em;
-        }
-        &.next {
-          top: calc(50% - 2rem);
-          right: 1em;
+        top: calc(50% - 2rem);
+        display: flex;
+        width: 100%;
+        z-index: 3;
+        justify-content: space-between;
+        button {
+          &.previous {
+            justify-self: start;
+          }
+          &.next {
+            justify-self: end;
+          }
         }
       }
       &:hover {
-        button {
+        .navigation {
           opacity: 1;
         }
       }
