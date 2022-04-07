@@ -37,4 +37,4 @@ def photos(page):
 @bp.route('/photos/<query>/<int:page>')
 def query_photos(query, page):
     records = Photo.get_records(page, query)
-    return records
+    return jsonify(records)
