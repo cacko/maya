@@ -24,7 +24,7 @@ def do_cache():
     return fwrap
 
 
-# @do_cache()
+@do_cache()
 @bp.route('/photos.json', defaults={'page': 1})
 @bp.route('/photos/<int:page>.json')
 def photos(page):
@@ -32,7 +32,7 @@ def photos(page):
     return jsonify(records)
 
 
-# @do_cache()
+@do_cache()
 @bp.route('/photos/<query>.json', defaults={'page': 1})
 @bp.route('/photos/<query>/<int:page>.json')
 def query_photos(query, page):
