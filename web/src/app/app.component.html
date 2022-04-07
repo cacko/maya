@@ -1,12 +1,18 @@
 <app-loader *ngIf="loading"></app-loader>
 
 <div class="filters" [attr.filtered]="query.length > 2 || null">
-  <mat-chip>
-    {{query}}
-    <button matChipRemove>
-      <mat-icon>cancel</mat-icon>
-    </button>
-  </mat-chip>
+
+  <mat-form-field class="example-chip-list" appearance="fill">
+    <mat-label>Video keywords</mat-label>
+    <mat-chip-list #chipList aria-label="Video keywords" multiple>
+      <mat-chip
+        *ngFor="let keyword of keywords"
+        [value]="keyword"
+        (removed)="removeKeyword(keyword)">
+        {{keyword}}
+      </mat-chip>
+    </mat-chip-list>
+  </mat-form-field>
 </div>
 
 

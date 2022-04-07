@@ -52,6 +52,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   form: FormGroup;
   query: string = "";
   isSearching = false;
+  keywords: string[] = [];
 
   private keyboardInterval: Subscription | undefined;
   private overlayRef: OverlayRef | undefined;
@@ -108,6 +109,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         if (!filter) {
           return;
         }
+        this.keywords = filter.split(" ");
         this.form.get("query")?.patchValue(filter);
       }
     });
@@ -165,6 +167,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         }
         this.imageService.clear();
         this.photos.load(1, this.query);
+        this.keywords = this.query.split(" ");
+
       });
 
       return false;
@@ -188,7 +192,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
 
-  @HostListener('document:keydown.enter', ['$event'])
+  @HostListener("document:keydown.enter", ["$event"])
   onEnter() {
     if (!this.isSearching) {
       return;
@@ -235,6 +239,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     return this.isSearching
       ? this.hideSearch(SearchOriginator.BUTTON)
       : this.showSearch(SearchOriginator.BUTTON);
+  }
+
+  removeKeyword(word: string) {
+
   }
 
 }

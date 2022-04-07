@@ -1,95 +1,107 @@
-.content {
-  height: 100vh;
-  overflow: auto;
-}
-
-.container {
-  display: grid;
-  gap: 0.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  grid-auto-rows: 240px;
-  padding: 0;
-  z-index: 1;
-
-  @media screen and (min-width: 600px) {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    grid-auto-rows: 150px;
+:host {
+  .content {
+    height: 100vh;
+    overflow: auto;
   }
 
+  .container {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-auto-rows: 240px;
+    padding: 0;
+    z-index: 1;
+    overflow-x: hidden;
 
-  &[expanded] {
-    display: flex;
-    overflow-x: auto;
-    height: 50px;
-    position: fixed;
-    bottom: 0;
-    gap: 0;
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-    &::-webkit-scrollbar {
-      display: none;
+    @media screen and (min-width: 600px) {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-auto-rows: 150px;
+    }
+
+
+    &[expanded] {
+      display: flex;
+      overflow-x: auto;
+      height: 50px;
+      position: fixed;
+      bottom: 0;
+      gap: 0;
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .card {
+        width: 50px;
+        flex-shrink: 0;
+      }
     }
 
     .card {
-      width: 50px;
-      flex-shrink: 0;
+      transform: matrix(1, 0, 0, 1, 0, 0);
+      transition: all 300ms;
+
+      &:hover {
+        transform: matrix(1.15, 0, 0, 1.15, 0, 0);
+        z-index: 2;
+        border-radius: 1em;
+      }
     }
+
+    @media screen and (min-width: 600px) {
+      .card-tall {
+        grid-row: span 2 / auto;
+      }
+
+      .card-wide {
+        grid-column: span 2 / auto;
+      }
+    }
+
   }
 
-  .card {
-    transform: matrix(1, 0, 0, 1, 0, 0);
-    transition: all 300ms;
+  .actions {
+    display: flex;
+    position: fixed;
+    opacity: 0;
+    top:1em;
+    right: 1em;
+    z-index: 3;
+    width: 20em;
+    justify-content: end;
+
 
     &:hover {
-      transform: matrix(1.15, 0, 0, 1.15, 0, 0);
+      opacity: 1;
       z-index: 2;
-      border-radius: 1em;
+    }
+    &[expanded] {
+      display: none;
     }
   }
 
-  @media screen and (min-width: 600px) {
-    .card-tall {
-      grid-row: span 2 / auto;
+  .filters {
+    position: fixed;
+    top: 1em;
+    left: 1em;
+    display: none;
+    z-index: 3;
+
+    &[filtered] {
+      display: inline-block;
     }
 
-    .card-wide {
-      grid-column: span 2 / auto;
-    }
+
   }
 
-}
-
-.actions {
-  display: flex;
-  position: fixed;
-  opacity: 0;
-  top:1em;
-  right: 1em;
-  z-index: 2;
-
-  &:hover {
-    opacity: 1;
-    z-index: 2;
+  .mat-chip {
+    font-size: 0.6em !important;
+    text-transform: uppercase;
+    min-height: 2em;
+    font-variant: small-caps;
   }
+
+
+
 }
-
-.filters {
-  position: fixed;
-  top: 1em;
-  left: 1em;
-  display: none;
-  z-index: 2;
-
-  &[filtered] {
-    display: inline-block;
-  }
-}
-
-.mat-chip {
-  font-size: 0.6em !important;
-  text-transform: uppercase;
-  min-height: 2em;
-  font-variant: small-caps;
-}
-
-
