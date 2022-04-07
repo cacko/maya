@@ -33,8 +33,8 @@ def photos(page):
 
 
 @do_cache()
-@bp.route('/photos', defaults={'page': 1})
-@bp.route('/photos/<path:query>/<int:page>')
+@bp.route('/photos/<str:query>', defaults={'page': 1})
+@bp.route('/photos/<str:query>/<int:page>')
 def query_photos(query, page):
     records = Photo.get_records(page, query)
     return records
