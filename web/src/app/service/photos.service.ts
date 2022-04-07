@@ -31,9 +31,9 @@ export class PhotosService {
     const scheme = environment.production ? "https:" : "http:";
     if (query.length > 0) {
       query = encodeURIComponent(query);
-      query += '/';
+      query = "/" + query;
     }
-    this.httpClient.get(`${scheme}//${this.API_BASE}/photos/${query}${page}.json`).subscribe({
+    this.httpClient.get(`${scheme}//${this.API_BASE}/photos/${this.page}${query}.json`).subscribe({
       next: (data) => {
         const items = data as PhotoEntity[];
         this.photosSubject.next(items);
