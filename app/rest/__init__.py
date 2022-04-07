@@ -25,7 +25,7 @@ def do_cache():
 
 
 @do_cache()
-@bp.route('/photos/<int:page>.json')
+@bp§.route('/photos/<int:page>.json')
 def photos(page):
     records = Photo.get_records(page)
     return jsonify(records)

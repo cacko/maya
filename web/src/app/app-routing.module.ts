@@ -10,6 +10,11 @@ const routes: Routes = [
     pathMatch: "full"
   },
   {
+    path: ":page/:filter",
+    component: AppComponent,
+    pathMatch: "full"
+  },
+  {
     path: "full-view/:id",
     component: FullViewComponent,
     pathMatch: "full"

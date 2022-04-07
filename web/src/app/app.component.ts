@@ -137,10 +137,19 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.selected = null;
     this.route.params.subscribe((params) => {
       const id = params["id"];
+      const page = params["page"];
+      const filter = params["filter"];
       id && setTimeout(() => {
         this.imageService.endLoader();
         this.viewportScroller.scrollToAnchor(id);
       }, 0);
+      page && filter && setTimeout(() => {
+        this.query = filter;
+        this.keywords = this.query.split(" ");
+        this.imageService.clear();
+        this.photos.load(1, this.query);
+        this.keywords = this.query.split(" ");
+      });
     });
     this.photos.photo.subscribe((selected) => {
       setTimeout(() => {
@@ -165,14 +174,12 @@ export class AppComponent implements OnInit, AfterViewInit {
         if (this.query.length > 0 && this.query.length < 3) {
           return;
         }
-        this.imageService.clear();
-        this.photos.load(1, this.query);
-        this.keywords = this.query.split(" ");
-
+        this.doSearch(1, this.query);
       });
 
       return false;
     });
+
 
     // if ("filter" in this.route.snapshot.queryParams) {
     //   this.form
@@ -180,6 +187,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     //     ?.patchValue(this.route.snapshot.queryParams.filter);
     //   this.api.searchSubject.next(true);
     // }
+  }
+
+
+  doSearch(page: number, filter: string) {
+    this.router.navigate(["", page, filter]);
   }
 
 
@@ -242,7 +254,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   removeKeyword(word: string) {
-
+    
   }
 
 }
