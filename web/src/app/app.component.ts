@@ -191,7 +191,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
 
   doSearch(page: number, filter: string) {
-    this.router.navigate(["", page, filter]);
+    this.router.navigate(["_", page, filter]);
   }
 
 
@@ -254,7 +254,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   removeKeyword(word: string) {
-    
+
   }
 
 }

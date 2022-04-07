@@ -10,7 +10,7 @@ const routes: Routes = [
     pathMatch: "full"
   },
   {
-    path: ":page/:filter",
+    path: "_/:page/:filter",
     component: AppComponent,
     pathMatch: "full"
   },
