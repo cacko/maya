@@ -226,11 +226,11 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.resetSearch();
       return;
     }
-    this.openWithTemplate(this.tpl);
     setTimeout(() => {
+      this.openWithTemplate(this.tpl);
       this.searchInput?.nativeElement.focus();
-    });
-    this.isSearching = true;
+      this.isSearching = true;
+    }, 0);
   }
 
   hideSearch(originator: SearchOriginator) {
