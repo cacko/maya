@@ -26,7 +26,7 @@ export class PhotosService {
 
   load(page = 1) {
     this.page = page;
-    this.httpClient.get(`${this.API_BASE}/photos/${page}`).subscribe({
+    this.httpClient.get(`${this.API_BASE}/photos/${page}.json`).subscribe({
       next: (data) => {
         const items = data as PhotoEntity[];
         this.photosSubject.next(items);

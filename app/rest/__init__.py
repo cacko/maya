@@ -25,16 +25,16 @@ def do_cache():
 
 
 # @do_cache()
-@bp.route('/photos', defaults={'page': 1})
-@bp.route('/photos/<int:page>')
+@bp.route('/photos.json', defaults={'page': 1})
+@bp.route('/photos/<int:page>.json')
 def photos(page):
     records = Photo.get_records(page)
     return jsonify(records)
 
 
 # @do_cache()
-@bp.route('/photos/<query>', defaults={'page': 1})
-@bp.route('/photos/<query>/<int:page>')
+@bp.route('/photos/<query>.json', defaults={'page': 1})
+@bp.route('/photos/<query>/<int:page>.json')
 def query_photos(query, page):
     records = Photo.get_records(page, query)
     return jsonify(records)
