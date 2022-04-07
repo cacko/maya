@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
   throttle = 50;
   scrollDistance = 2;
   scrollUpDistance = 1.5;
+  isHorizontal = false;
 
   constructor(
     public auth: AuthService,
@@ -66,11 +67,11 @@ export class AppComponent implements OnInit {
       setTimeout(() => {
         const oldId = this.selected;
         this.selected = selected;
-        if (!this.selected && oldId) {
-          this.router.navigate([""], { fragment: oldId + "" });
-        } else {
-          this.imageService.endLoader();
-        }
+        this.isHorizontal = !!selected;
+        // if (!this.selected && oldId) {
+        // } else {
+        //   this.imageService.endLoader();
+        // }
       }, 0);
     });
     this.imageService.loading.subscribe(val => {

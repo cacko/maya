@@ -13,6 +13,7 @@ export class FullViewComponent implements OnInit {
 
   id: string = "";
   image: Photo | undefined | null;
+  loaded = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -24,15 +25,15 @@ export class FullViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
-      setTimeout(() => {
-        this.images.startLoader();
-      },0);
+      this.loaded = false;
       this.id = params["id"];
       this.images.byId(this.id).then((image) => {
         const im = new Image();
         im.onload = () => {
-          this.image = image;
           this.photos.expand(this.id);
+          this.image = image;
+          this.loaded = true;
+          this.images.endLoader();
         };
         if (image) {
           im.src = image.src;
@@ -50,6 +51,21 @@ export class FullViewComponent implements OnInit {
 
   onClose() {
     this.photos.shrink();
+  }
+
+  onPrevious() {
+    this.images.startLoader();
+    this.navigate(this.images.previous(this.id));
+  }
+
+  onNext() {
+    this.images.startLoader();
+    this.navigate(this.images.next(this.id));
+  }
+
+  navigate(id: string) {
+    this.router.navigate(["full-view", id]);
+
   }
 
 }

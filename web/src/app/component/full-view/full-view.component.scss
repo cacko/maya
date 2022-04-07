@@ -5,16 +5,63 @@
     align-items: center;
     height: 100vh;
 
+
+
+    @keyframes slidein {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+
     .image {
-      height: 100%;
-      width: 100%;
       background-repeat: no-repeat;
       background-position: center;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      display: flex;
 
-      button {
+
+      &[loaded="true"] {
+        opacity: 1;
+        animation-duration: 3s;
+        animation-name: slidein;
+      }
+
+      img {
+        opacity: 0;
+      }
+
+
+      button.menu_action {
         position: absolute;
         top: 1rem;
         right: 1rem;
+        opacity: 0;
+      }
+
+      button.navigation {
+        position: absolute;
+        opacity: 0;
+        &.previous {
+          top: calc(50% - 2rem);
+          left: 1em;
+        }
+        &.next {
+          top: calc(50% - 2rem);
+          right: 1em;
+        }
+      }
+      &:hover {
+        button {
+          opacity: 1;
+        }
       }
     }
   }

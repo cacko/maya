@@ -1,4 +1,4 @@
 <div class="holder" *ngIf="!!image">
-  <div class="card" [ngStyle]="style()" matRipple [routerLink]="'full-view/' + image.id"></div>
+  <div class="card" [ngStyle]="style()" matRipple (click)="onClick()"></div>
 </div>
 

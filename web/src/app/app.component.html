@@ -5,6 +5,7 @@
      [infiniteScrollUpDistance]="scrollUpDistance"
      [infiniteScrollThrottle]="throttle"
      (scrolled)="onScrollDown()"
+     [horizontal]="isHorizontal"
      [attr.expanded]="selected">
   <app-card *ngFor="let image of imageService.images" [image]="image" class="card" [ngClass]="image.style"
             [attr.id]="image.id" [attr.expanded]="selected"></app-card>

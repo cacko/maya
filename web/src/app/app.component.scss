@@ -9,6 +9,7 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   grid-auto-rows: 240px;
   padding: 0;
+  z-index: 1;
 
   @media screen and (min-width: 600px) {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -41,7 +42,7 @@
 
     &:hover {
       transform: matrix(1.15, 0, 0, 1.15, 0, 0);
-      z-index: 1;
+      z-index: 2;
       border-radius: 1em;
     }
   }

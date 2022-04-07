@@ -33,7 +33,7 @@ export class PhotosService {
         const items = data as PhotoEntity[];
         this.photosSubject.next(items);
       }, error: (err) => {
-        console.error(err);
+        throw err;
       }
     });
   }

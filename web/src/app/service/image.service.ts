@@ -48,8 +48,23 @@ export class ImageService {
             return resolve(image);
           }
         });
-        this.photoService.load(++this.photoService.page);
+        try {
+          this.photoService.load(++this.photoService.page);
+        } catch (err) {
+          reject()
+        }
       });
     });
+  }
+
+  previous(id: string) {
+    const idx = Math.max(0, this.ids.indexOf(id) - 1);
+    return this.ids[idx];
+  }
+
+  next(id: string) {
+    const idx = Math.max(0, this.ids.indexOf(id) +1);
+    return this.ids[idx];
+
   }
 }

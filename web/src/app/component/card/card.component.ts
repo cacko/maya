@@ -24,4 +24,9 @@ export class CardComponent {
       "background-size": "cover"
     };
   }
+
+  onClick() {
+    this.imageService.startLoader();
+    this.router.navigate(['full-view', this.image?.id]);
+  }
 }

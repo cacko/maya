@@ -22,7 +22,7 @@ export class Photo {
   }
 
   public get id(): string {
-    return Md5.hashStr(this.data.full);
+    return 'a' + Md5.hashStr(this.data.full);
   }
 
   public get thumb(): string {
