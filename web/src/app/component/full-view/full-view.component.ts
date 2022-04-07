@@ -51,6 +51,7 @@ export class FullViewComponent implements OnInit {
 
   onClose() {
     this.photos.shrink();
+    this.router.navigate(["",this.id]);
   }
 
   onPrevious() {

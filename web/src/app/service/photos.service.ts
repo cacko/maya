@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import { PhotoEntity } from "../entity/photo";
 import { HttpClient } from "@angular/common/http";
+import { environment } from "../../environments/environment";
+
 
 @Injectable({
   providedIn: "root"
@@ -14,7 +16,7 @@ export class PhotosService {
   private photoSubject = new Subject<string | null>();
   photo = this.photoSubject.asObservable();
 
-  private readonly API_BASE = "https://photos.cacko.net/maya/rest";
+  private readonly API_BASE = "photos.cacko.net/maya/rest";
 
   page = 1;
 
@@ -26,7 +28,8 @@ export class PhotosService {
 
   load(page = 1) {
     this.page = page;
-    this.httpClient.get(`${this.API_BASE}/photos/${page}.json`).subscribe({
+    const scheme = environment.production ? 'https:' : 'http:';
+    this.httpClient.get(`${scheme}//${this.API_BASE}/photos/${page}.json`).subscribe({
       next: (data) => {
         const items = data as PhotoEntity[];
         this.photosSubject.next(items);

@@ -5,7 +5,7 @@ import { SwUpdate } from "@angular/service-worker";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { interval } from "rxjs";
 import { ImageService } from "./service/image.service";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ViewportScroller } from "@angular/common";
 
 @Component({
@@ -32,7 +32,9 @@ export class AppComponent implements OnInit {
     private swUpdate: SwUpdate,
     private snackBar: MatSnackBar,
     private router: Router,
-    private scroller: ViewportScroller
+    private scroller: ViewportScroller,
+    private route: ActivatedRoute,
+    private viewportScroller: ViewportScroller
   ) {
     if (this.swUpdate.isEnabled) {
       this.swUpdate.available.subscribe((evt) => {
@@ -63,15 +65,18 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.selected = null;
+    this.route.params.subscribe((params) => {
+      const id = params["id"];
+      id && setTimeout(() => {
+        this.imageService.endLoader();
+        this.viewportScroller.scrollToAnchor(id);
+      }, 0);
+    });
     this.photos.photo.subscribe((selected) => {
       setTimeout(() => {
         const oldId = this.selected;
         this.selected = selected;
         this.isHorizontal = !!selected;
-        // if (!this.selected && oldId) {
-        // } else {
-        //   this.imageService.endLoader();
-        // }
       }, 0);
     });
     this.imageService.loading.subscribe(val => {
