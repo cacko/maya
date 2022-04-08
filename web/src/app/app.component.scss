@@ -87,6 +87,15 @@
     left: 1em;
     display: none;
     z-index: 3;
+    mat-chip-list {
+      font-size: 1.8rem;
+      mat-chip {
+        opacity: 0.5;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
 
     &[filtered] {
       display: inline-block;

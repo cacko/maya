@@ -149,11 +149,11 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.imageService.clear();
         this.photos.load(1, this.query);
         this.keywords = this.query.split(" ");
+        this.imageService.endLoader();
       });
     });
     this.photos.photo.subscribe((selected) => {
       setTimeout(() => {
-        const oldId = this.selected;
         this.selected = selected;
         this.isHorizontal = !!selected;
       }, 0);
@@ -180,20 +180,16 @@ export class AppComponent implements OnInit, AfterViewInit {
       return false;
     });
 
-
-    // if ("filter" in this.route.snapshot.queryParams) {
-    //   this.form
-    //     .get("query")
-    //     ?.patchValue(this.route.snapshot.queryParams.filter);
-    //   this.api.searchSubject.next(true);
-    // }
   }
 
 
   doSearch(page: number, filter: string) {
-    this.router.navigate(["_", page, filter]);
+    if (filter.length) {
+      this.router.navigate(["_", page, filter]);
+    } else {
+      this.router.navigate([page]);
+    }
   }
-
 
   openWithTemplate(tpl: TemplateRef<any> | undefined) {
     tpl && this.overlayRef?.attach(new TemplatePortal(tpl, this.viewContainerRef));
@@ -255,7 +251,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   removeKeyword(word: string) {
-
+    this.keywords = this.keywords.filter(a => a != word);
+    this.query = this.keywords.join(" ");
+    this.doSearch(1, this.query);
   }
 
 }
