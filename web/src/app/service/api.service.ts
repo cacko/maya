@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { environment } from "../../environments/environment";
 
 
 @Injectable({
@@ -20,8 +19,6 @@ export class ApiService {
 
   load(page = 1, filter: string = "", folder: string = "") {
     this.page = Math.max(1, page);
-    const scheme = environment.production ? "http:" : "https:";
-
     let url = "photos";
 
     if (folder) {
@@ -29,12 +26,12 @@ export class ApiService {
     }
 
     return this.httpClient.get(
-      `${scheme}//${this.API_BASE}/${url}.json`, {
+      `https://${this.API_BASE}/${url}.json`, {
         params: {
-          filter:filter,
+          filter: filter,
           page
         }
       }
-    )
+    );
   }
 }
