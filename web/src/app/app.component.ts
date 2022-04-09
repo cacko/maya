@@ -107,25 +107,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
     this.imageService.selected.subscribe((selected) => {
       console.log(`selected=${selected}`);
-      const oldId = this.selected;
-      this.selected = selected;
-      this.isHorizontal = !!selected;
-      if (selected) {
-        this.router.navigate(["photo", selected]).then(() => {
-          console.log(`loaded ${selected}`);
-        });
-      } else {
-        this.router.navigate([""]).then(() => {
-          console.log(`loaded ${selected}`);
-          if (oldId) {
-            (async () => {
-              this.imageService.endLoader();
-              await this.imageService.unselect();
-              this.viewportScroller.scrollToAnchor(oldId);
-            })();
-          }
-        });
-      }
+      setTimeout(() => {
+        this.selected = selected;
+        this.isHorizontal = !!selected;
+      }, 0);
     });
   }
 

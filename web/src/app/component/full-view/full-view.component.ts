@@ -27,15 +27,22 @@ export class FullViewComponent implements OnInit {
     this.route.params.subscribe((params) => {
       this.loaded = false;
       this.id = params["id"];
+      this.images.startLoader();
       this.images.byId(this.id).then((image) => {
-        const im = new Image();
-        im.onload = () => {
-          this.images.select(this.id);
-          this.image = image;
-          this.loaded = true;
-          this.images.endLoader();
-        };
+        console.log(image);
         if (image) {
+          console.log(image);
+          const im = new Image();
+          im.onload = () => {
+            console.log('loaded', im);
+            this.image = image;
+            this.loaded = true;
+            if (image.id) {
+              this.images.select(image.id).then(() => {
+                this.images.endLoader();
+              });
+            }
+          };
           im.src = image.src;
         }
       });

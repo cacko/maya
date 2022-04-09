@@ -15,6 +15,8 @@ export class ImageService {
   public filter: string = "";
   public page: number = 0;
 
+  private findId: string = "";
+
   private loadingSubject = new Subject<boolean>();
   loading = this.loadingSubject.asObservable();
 
@@ -53,38 +55,61 @@ export class ImageService {
   }
 
   load(): Promise<boolean> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.api
         .load(++this.page, this.filter, this.folder)
-        .subscribe((data) => {
-          const photos = data as PhotoEntity[];
-          photos.forEach(photo => {
-            const image = new Photo(photo);
-            this.ids.push(image.id);
-            this.images.push((image));
-          });
-          resolve(true);
+        .subscribe({
+          next: (data) => {
+            const photos = data as PhotoEntity[];
+            if (!photos.length) {
+              return reject("nothing to load");
+            }
+            photos.forEach(photo => {
+              const image = new Photo(photo);
+              this.ids.push(image.id);
+              this.images.push((image));
+            });
+            resolve(true);
+          }, error: (err) => {
+            reject(err);
+          }
         });
-      this.api.load(++this.page, this.filter, this.folder);
     });
   }
 
-  byId(id: string): Promise<Photo | undefined> {
-    return new Promise((resolve, reject) => {
+
+  byId(id: string): Promise<Photo | null | undefined> {
+    return new Promise((resolve) => {
+      let res = null;
       if (this.ids.includes(id)) {
-        return resolve(this.images.find(i => i.id == id));
+        console.log("in includes");
+        res = this.images.find(i => i.id == id);
+        console.log(res);
+        return resolve(res);
       }
-      this.api
-        .load(++this.page, this.filter, this.folder)
-        .subscribe(data => {
-          const items = data as PhotoEntity[];
-          items.forEach(i => {
-            const image = new Photo(i);
-            if (image.id == id) {
-              return resolve(image);
-            }
-          });
-        });
+      (async () => {
+        let res = null;
+        while(res === null) {
+          res = await this.loadId(id).catch(() => (res = undefined));
+        }
+        return resolve(res);
+      })();
+    });
+  }
+
+  private async loadId(id: string): Promise<Photo | null | undefined> {
+    return new Promise((resolve, reject) => {
+      this.load().then((res) => {
+        if (!res) {
+          reject("No more photos to load");
+        } else {
+          if (this.ids.includes(id)) {
+            return resolve(this.images.find(i => i.id == id));
+          } else {
+            return resolve(null);
+          }
+        }
+      });
     });
   }
 

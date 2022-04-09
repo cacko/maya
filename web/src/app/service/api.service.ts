@@ -20,7 +20,7 @@ export class ApiService {
 
   load(page = 1, filter: string = "", folder: string = "") {
     this.page = Math.max(1, page);
-    const scheme = environment.production ? "https:" : "https:";
+    const scheme = environment.production ? "http:" : "https:";
 
     let url = "photos";
 
