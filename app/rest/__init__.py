@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, Response
 from app.storage.models import Photo
 from hashlib import blake2s
 from functools import wraps
+from app.rest.models.folder import Folder
 
 bp = Blueprint('rest', __name__, url_prefix="/maya/rest")
 
@@ -24,15 +25,30 @@ def do_cache():
     return fwrap
 
 
+def get_page(rq) -> int:
+    try:
+        page = int(rq.args.get("page", 1))
+    except ValueError:
+        page = 1
+    return page
+
+
 @do_cache()
-@bp.route('/photos/<int:page>.json')
-def photos(page):
-    records = Photo.get_records(page)
+@bp.route('/photos.json')
+def photos():
+    records = Photo.get_records(get_page(request), query=request.args.get("filter"))
     return jsonify(records)
 
 
 @do_cache()
-@bp.route('/photos/<int:page>/<path:query>.json')
-def query_photos(query, page):
-    records = Photo.get_records(page, query)
+@bp.route('/folders.json')
+def folders():
+    records = Folder.get_records()
+    return jsonify(records)
+
+
+@do_cache()
+@bp.route('/folder/<path:folder>.json')
+def get_folder(folder):
+    records = Photo.get_records(get_page(request), folder=folder, query=request.args.get("filter"))
     return jsonify(records)

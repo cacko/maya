@@ -26,14 +26,24 @@ export class PhotosService {
 
   }
 
-  load(page = 1, query: string = "") {
+  load(page = 1, query: string = "", folder: string = "") {
     this.page = Math.max(1, page);
     const scheme = environment.production ? "https:" : "https:";
-    if (query.length > 0) {
-      query = encodeURIComponent(query);
-      query = "/" + query;
+
+    let url = "photos";
+
+    if (folder) {
+      url = "folder";
     }
-    this.httpClient.get(`${scheme}//${this.API_BASE}/photos/${this.page}${query}.json`).subscribe({
+
+    this.httpClient.get(
+      `${scheme}//${this.API_BASE}/${url}.json`, {
+        params: {
+          query,
+          page
+        }
+      }
+    ).subscribe({
       next: (data) => {
         const items = data as PhotoEntity[];
         this.photosSubject.next(items);

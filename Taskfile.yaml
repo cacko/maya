@@ -40,7 +40,7 @@ tasks:
       - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user -u {{.PROJECT}} -f' | ccze -A
 
   serve:
-    desc: start gunicorn
+    desc: start local serve
     cmds:
       - poetry run flask run
 

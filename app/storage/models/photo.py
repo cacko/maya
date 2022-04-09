@@ -13,9 +13,18 @@ class Photo(BaseModel):
     longitude = FloatField(null=True)
 
     @classmethod
-    def get_records(cls, page=1, query: str = None) -> list['Photo']:
+    def get_records(
+            cls,
+            page=1,
+            query: str = None,
+            folder: str = None
+    ) -> list['Photo']:
         q = cls.select()
         if query:
-            q = q.where(cls.folder ** f"%{query}%")
+            q = q.where(
+                (cls.folder ** f"%{query}%") | (cls.full ** f"%{query}%")
+            )
+        if folder:
+            q = q.where(cls.folder == folder)
         q = q.order_by(cls.timestamp.desc()).paginate(page, 50)
         return list(q.dicts())
