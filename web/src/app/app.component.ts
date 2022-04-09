@@ -42,7 +42,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   page = 1;
   updating = true;
   selected: string | undefined | null = null;
-  loading = false;
+  loading = true;
   throttle = 50;
   scrollDistance = 2;
   scrollUpDistance = 1.5;
@@ -107,6 +107,33 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.form.get("query")?.patchValue(filter);
       }
     });
+    this.imageService.loading.subscribe(val => {
+      setTimeout(() => {
+        this.loading = !!val;
+      }, 0);
+    });
+    this.imageService.selected.subscribe((selected) => {
+      console.log(`selected=${selected}`);
+      const oldId = this.selected;
+      this.selected = selected;
+      this.isHorizontal = !!selected;
+      if (selected) {
+        this.router.navigate(["photo", selected]).then(() => {
+          console.log(`loaded ${selected}`);
+        });
+      } else {
+        this.router.navigate([""]).then(() => {
+          console.log(`loaded ${selected}`);
+          if (oldId) {
+            (async () => {
+              this.imageService.endLoader();
+              await this.imageService.unselect();
+              this.viewportScroller.scrollToAnchor(oldId);
+            })();
+          }
+        });
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -125,18 +152,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.overlayRef.backdropClick().subscribe(() => {
       this.hideSearch(SearchOriginator.BACKDROP);
     });
-  }
+  };
 
   async ngOnInit() {
-    this.selected = null;
     this.route.params.subscribe((params) => {
-      const id = params["id"];
       const filter = params["filter"];
-      id && setTimeout(() => {
-        this.imageService.endLoader();
-        this.imageService.unselect();
-        this.viewportScroller.scrollToAnchor(id);
-      }, 0);
       filter && setTimeout(() => {
         this.query = filter;
         this.keywords = this.query.split(" ");
@@ -146,17 +166,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.imageService.endLoader();
       });
     });
-    this.imageService.selected.subscribe((selected) => {
-      setTimeout(() => {
-        this.selected = selected;
-        this.isHorizontal = !!selected;
-      }, 0);
-    });
-    this.imageService.loading.subscribe(val => {
-      setTimeout(() => {
-        this.loading = !!val;
-      }, 0);
-    });
+
     this.form.get("query")?.valueChanges.subscribe((value: string) => {
       if (this.keyboardInterval && !this.keyboardInterval.closed) {
         this.keyboardInterval.unsubscribe();
@@ -168,7 +178,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         if (this.query.length > 0 && this.query.length < 3) {
           return;
         }
-        this.doSearch(1, this.query);
+        this.doSearch(this.query);
       });
 
       return false;
@@ -176,11 +186,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   }
 
-  async doSearch(page: number, filter: string) {
+  async doSearch(filter: string) {
     if (filter.length) {
-      await this.router.navigate(["_", page, filter]);
+      await this.router.navigate(["_", filter]);
     } else {
-      await this.router.navigate([page]);
+      await this.router.navigate([""]);
     }
   }
 
@@ -204,10 +214,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostListener("document:keydown.escape", ["$event"])
   onEscape() {
     if (this.selected) {
-      this.router.navigate(["", this.selected]);
+      this.imageService.unselect();
     }
   }
-
 
   showSearch(originator: SearchOriginator) {
     if (originator == SearchOriginator.BUTTON && this.query.length > 0) {
@@ -245,10 +254,10 @@ export class AppComponent implements OnInit, AfterViewInit {
       : this.showSearch(SearchOriginator.BUTTON);
   }
 
-  removeKeyword(word: string) {
+  async removeKeyword(word: string) {
     this.keywords = this.keywords.filter(a => a != word);
     this.query = this.keywords.join(" ");
-    this.doSearch(1, this.query);
+    await this.doSearch(this.query);
   }
 
 }

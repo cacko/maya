@@ -25,8 +25,8 @@ export class CardComponent {
     };
   }
 
-  onClick() {
+  async onClick() {
     this.imageService.startLoader();
-    this.router.navigate(['full-view', this.image?.id]);
+    await this.router.navigate(["photo", this.image?.id]);
   }
 }

@@ -50,6 +50,7 @@ export class FullViewComponent implements OnInit {
   }
 
   onClose() {
+    this.images.unselect();
     this.router.navigate(["", this.id]);
   }
 
@@ -63,9 +64,8 @@ export class FullViewComponent implements OnInit {
     this.navigate(this.images.next(this.id));
   }
 
-  navigate(id: string) {
-    this.router.navigate(["full-view", id]);
-
+  async navigate(id: string) {
+    this.images.select(id);
   }
 
 }

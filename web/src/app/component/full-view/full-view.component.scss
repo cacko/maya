@@ -7,8 +7,7 @@
     overflow: hidden;
 
 
-
-    @keyframes slidein {
+    @keyframes appear {
       from {
         opacity: 0;
       }
@@ -32,7 +31,7 @@
       &[loaded="true"] {
         opacity: 1;
         animation-duration: 3s;
-        animation-name: slidein;
+        animation-name: appear;
       }
 
       img {
@@ -55,15 +54,18 @@
         width: 100%;
         z-index: 3;
         justify-content: space-between;
+
         button {
           &.previous {
-            justify-self: start;
+            justify-self: flex-start;
           }
+
           &.next {
-            justify-self: end;
+            justify-self: flex-end;
           }
         }
       }
+
       &:hover {
         .navigation {
           opacity: 1;

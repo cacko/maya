@@ -106,11 +106,11 @@ export class ImageService {
     return this.ids[idx];
   }
 
-  select(id: string) {
+  async select(id: string) {
     this.selectedSubject.next(id);
   }
 
-  unselect() {
+  async unselect() {
     this.selectedSubject.next(null);
   }
 }
