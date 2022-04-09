@@ -26,5 +26,5 @@ class Photo(BaseModel):
             )
         if folder:
             q = q.where(cls.folder == folder)
-        q = q.order_by(cls.timestamp.desc()).paginate(page, 50)
+        q = q.order_by(cls.timestamp.desc()).paginate(page, 100)
         return list(q.dicts())
