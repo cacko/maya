@@ -22,7 +22,7 @@ export class ImageService {
   selected = this.selectedSubject.asObservable();
 
   constructor(
-    private photoService: ApiService
+    private api: ApiService
   ) {
   }
 
@@ -54,16 +54,18 @@ export class ImageService {
 
   load(): Promise<boolean> {
     return new Promise((resolve) => {
-      this.photoService.photos.subscribe((data) => {
-        const photos = data as PhotoEntity[];
-        photos.forEach(photo => {
-          const image = new Photo(photo);
-          this.ids.push(image.id);
-          this.images.push((image));
+      this.api
+        .load(++this.page, this.filter, this.folder)
+        .subscribe((data) => {
+          const photos = data as PhotoEntity[];
+          photos.forEach(photo => {
+            const image = new Photo(photo);
+            this.ids.push(image.id);
+            this.images.push((image));
+          });
+          resolve(true);
         });
-        resolve(true);
-      });
-      this.photoService.load(++this.page, this.filter, this.folder);
+      this.api.load(++this.page, this.filter, this.folder);
     });
   }
 
@@ -72,20 +74,17 @@ export class ImageService {
       if (this.ids.includes(id)) {
         return resolve(this.images.find(i => i.id == id));
       }
-      this.photoService.photos.subscribe(data => {
-        const items = data as PhotoEntity[];
-        items.forEach(i => {
-          const image = new Photo(i);
-          if (image.id == id) {
-            return resolve(image);
-          }
+      this.api
+        .load(++this.page, this.filter, this.folder)
+        .subscribe(data => {
+          const items = data as PhotoEntity[];
+          items.forEach(i => {
+            const image = new Photo(i);
+            if (image.id == id) {
+              return resolve(image);
+            }
+          });
         });
-        try {
-          this.photoService.load(++this.photoService.page);
-        } catch (err) {
-          reject();
-        }
-      });
     });
   }
 

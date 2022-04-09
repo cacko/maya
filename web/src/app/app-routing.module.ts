@@ -5,11 +5,6 @@ import { AppComponent } from "./app.component";
 
 const routes: Routes = [
   {
-    path: "_/:filter",
-    component: AppComponent,
-    pathMatch: "full"
-  },
-  {
     path: "photo/:id",
     component: FullViewComponent,
     pathMatch: "full"

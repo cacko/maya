@@ -49,23 +49,22 @@ export class FullViewComponent implements OnInit {
     };
   }
 
-  onClose() {
-    this.images.unselect();
-    this.router.navigate(["", this.id]);
+  async onClose() {
+    await this.images.unselect();
   }
 
-  onPrevious() {
+  async onPrevious() {
     this.images.startLoader();
-    this.navigate(this.images.previous(this.id));
+    await this.navigate(this.images.previous(this.id));
   }
 
-  onNext() {
+  async onNext() {
     this.images.startLoader();
-    this.navigate(this.images.next(this.id));
+    await this.navigate(this.images.next(this.id));
   }
 
   async navigate(id: string) {
-    this.images.select(id);
+    await this.images.select(id);
   }
 
 }

@@ -100,17 +100,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.form = this.builder.group({
       query: new FormControl()
     });
-
-    this.route.queryParams.subscribe({
-      next: (params) => {
-        const filter = params["filter"];
-        if (!filter) {
-          return;
-        }
-        this.keywords = filter.split(" ");
-        this.form.get("query")?.patchValue(filter);
-      }
-    });
     this.imageService.loading.subscribe(val => {
       setTimeout(() => {
         this.loading = !!val;
@@ -159,50 +148,53 @@ export class AppComponent implements OnInit, AfterViewInit {
   };
 
   async ngOnInit() {
-    this.route.params.subscribe((params) => {
-      const filter = params["filter"];
-      filter && setTimeout(() => {
-        this.query = filter;
-        this.keywords = this.query.split(" ");
-        this.imageService.setFilter(filter);
-        this.imageService.load();
-        this.keywords = this.query.split(" ");
-        this.imageService.endLoader();
-      });
-    });
-
     this.form.get("query")?.valueChanges.subscribe((value: string) => {
       if (this.keyboardInterval && !this.keyboardInterval.closed) {
         this.keyboardInterval.unsubscribe();
       }
-
-      this.query = value?.trim().toLowerCase() || "";
-
       this.keyboardInterval = timer(1000).subscribe(() => {
+        value = value?.trim().toLowerCase() || "";
         if (this.query.length > 0 && this.query.length < 3) {
           return;
         }
-        this.doSearch(this.query);
+        if (value != this.query) {
+          console.log("query", value);
+          this.query = value;
+          this.doSearch(value);
+        }
       });
-
       return false;
     });
 
   }
 
   async doSearch(filter: string) {
+    console.log("do search");
+
+    this.query = filter;
+    this.keywords = this.query.split(" ");
+    this.imageService.setFilter(filter);
     if (filter.length) {
-      await this.router.navigate(["_", filter]);
+      await this.router.navigate([""], { queryParams: { filter }, replaceUrl: true });
     } else {
-      await this.router.navigate([""]);
+      await this.router.navigate([""], { replaceUrl: true });
     }
+    // this.form.get("query")?.patchValue(filter);
+    this.imageService.startLoader();
+    await this.imageService.load().then(() => {
+      this.imageService.endLoader();
+    });
   }
 
   openWithTemplate(tpl: TemplateRef<any> | undefined) {
-    tpl && this.overlayRef?.attach(new TemplatePortal(tpl, this.viewContainerRef));
+    if (!tpl) {
+      return;
+    }
+    this.overlayRef?.attach(new TemplatePortal(tpl, this.viewContainerRef));
   }
 
   async onScrollDown() {
+    console.log("on scroll down");
     await this.imageService.load();
   }
 
@@ -227,8 +219,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.resetSearch();
       return;
     }
+    this.openWithTemplate(this.tpl);
     setTimeout(() => {
-      this.openWithTemplate(this.tpl);
       this.searchInput?.nativeElement.focus();
       this.isSearching = true;
     }, 0);
