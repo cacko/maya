@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { PhotosService } from "../../service/photos.service";
+import { ApiService } from "../../service/api.service";
 import { Photo } from "../../entity/photo";
 import { ImageService } from "../../service/image.service";
 
@@ -18,7 +18,7 @@ export class FullViewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private photos: PhotosService,
+    private photos: ApiService,
     private images: ImageService
   ) {
   }
@@ -30,7 +30,7 @@ export class FullViewComponent implements OnInit {
       this.images.byId(this.id).then((image) => {
         const im = new Image();
         im.onload = () => {
-          this.photos.expand(this.id);
+          this.images.select(this.id);
           this.image = image;
           this.loaded = true;
           this.images.endLoader();
@@ -50,8 +50,7 @@ export class FullViewComponent implements OnInit {
   }
 
   onClose() {
-    this.photos.shrink();
-    this.router.navigate(["",this.id]);
+    this.router.navigate(["", this.id]);
   }
 
   onPrevious() {

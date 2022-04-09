@@ -9,10 +9,9 @@ import {
   ViewContainerRef
 } from "@angular/core";
 import { AuthService } from "./service/auth.service";
-import { PhotosService } from "./service/photos.service";
-import { SwUpdate } from "@angular/service-worker";
+import { SwUpdate, VersionReadyEvent } from "@angular/service-worker";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { interval, Subscription, timer } from "rxjs";
+import { filter, map, Subscription, timer } from "rxjs";
 import { ImageService } from "./service/image.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ViewportScroller } from "@angular/common";
@@ -41,10 +40,9 @@ const SEARCH_STATES = ["search", "search_off"];
 export class AppComponent implements OnInit, AfterViewInit {
   title = "app";
   page = 1;
-  loading: boolean = true;
   updating = true;
   selected: string | undefined | null = null;
-
+  loading = false;
   throttle = 50;
   scrollDistance = 2;
   scrollUpDistance = 1.5;
@@ -62,7 +60,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   constructor(
     public auth: AuthService,
-    public photos: PhotosService,
     public imageService: ImageService,
     private swUpdate: SwUpdate,
     private snackBar: MatSnackBar,
@@ -75,28 +72,25 @@ export class AppComponent implements OnInit, AfterViewInit {
     private viewContainerRef: ViewContainerRef
   ) {
     if (this.swUpdate.isEnabled) {
-      this.swUpdate.available.subscribe((evt) => {
-        this.updating = true;
-        this.snackBar
-          .open("Update is available", "Update")
-          .onAction()
-          .subscribe(() =>
-            this.swUpdate
-              .activateUpdate()
-              .then(() => document.location.reload())
-          );
-      });
-      interval(10000).subscribe(() => {
-        this.swUpdate.checkForUpdate();
+      swUpdate.versionUpdates.pipe(
+        filter((evt): evt is VersionReadyEvent => evt.type === "VERSION_READY"),
+        map(evt => ({
+          type: "UPDATE_AVAILABLE",
+          current: evt.currentVersion,
+          available: evt.latestVersion
+        }))).subscribe((res) => {
+        console.log("update available", res);
+        this.swUpdate
+          .activateUpdate()
+          .then(() => document.location.reload());
       });
     }
     this.auth.isLogged.subscribe(res => {
       if (res) {
-        this.photos.photos.subscribe(data => {
-          this.imageService.append(data);
+        this.loading = true;
+        this.imageService.load().then(() => {
           this.loading = false;
         });
-        this.photos.load();
       }
     });
     this.form = this.builder.group({
@@ -133,26 +127,26 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.selected = null;
     this.route.params.subscribe((params) => {
       const id = params["id"];
-      const page = params["page"];
       const filter = params["filter"];
       id && setTimeout(() => {
         this.imageService.endLoader();
+        this.imageService.unselect();
         this.viewportScroller.scrollToAnchor(id);
       }, 0);
-      page && filter && setTimeout(() => {
+      filter && setTimeout(() => {
         this.query = filter;
         this.keywords = this.query.split(" ");
-        this.imageService.clear();
-        this.photos.load(1, this.query);
+        this.imageService.setFilter(filter);
+        this.imageService.load();
         this.keywords = this.query.split(" ");
         this.imageService.endLoader();
       });
     });
-    this.photos.photo.subscribe((selected) => {
+    this.imageService.selected.subscribe((selected) => {
       setTimeout(() => {
         this.selected = selected;
         this.isHorizontal = !!selected;
@@ -182,12 +176,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   }
 
-
-  doSearch(page: number, filter: string) {
+  async doSearch(page: number, filter: string) {
     if (filter.length) {
-      this.router.navigate(["_", page, filter]);
+      await this.router.navigate(["_", page, filter]);
     } else {
-      this.router.navigate([page]);
+      await this.router.navigate([page]);
     }
   }
 
@@ -195,8 +188,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     tpl && this.overlayRef?.attach(new TemplatePortal(tpl, this.viewContainerRef));
   }
 
-  onScrollDown() {
-    this.photos.load(++this.page);
+  async onScrollDown() {
+    await this.imageService.load();
   }
 
 
@@ -211,7 +204,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostListener("document:keydown.escape", ["$event"])
   onEscape() {
     if (this.selected) {
-      this.photos.shrink();
       this.router.navigate(["", this.selected]);
     }
   }
@@ -241,7 +233,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   resetSearch() {
     this.form.get("query")?.reset();
     this.imageService.clear();
-    this.photos.load();
+    this.imageService.startLoader();
+    this.imageService.load().then(() => {
+      this.imageService.endLoader();
+    });
   }
 
   onSearch() {

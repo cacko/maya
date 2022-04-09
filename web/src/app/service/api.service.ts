@@ -8,13 +8,10 @@ import { environment } from "../../environments/environment";
 @Injectable({
   providedIn: "root"
 })
-export class PhotosService {
+export class ApiService {
 
   private photosSubject = new Subject<PhotoEntity[]>();
   photos = this.photosSubject.asObservable();
-
-  private photoSubject = new Subject<string | null>();
-  photo = this.photoSubject.asObservable();
 
   private readonly API_BASE = "photos.cacko.net/maya/rest";
 
@@ -26,7 +23,7 @@ export class PhotosService {
 
   }
 
-  load(page = 1, query: string = "", folder: string = "") {
+  load(page = 1, filter: string = "", folder: string = "") {
     this.page = Math.max(1, page);
     const scheme = environment.production ? "https:" : "https:";
 
@@ -39,7 +36,7 @@ export class PhotosService {
     this.httpClient.get(
       `${scheme}//${this.API_BASE}/${url}.json`, {
         params: {
-          query,
+          filter:filter,
           page
         }
       }
@@ -51,14 +48,5 @@ export class PhotosService {
         throw err;
       }
     });
-  }
-
-
-  expand(id?: string) {
-    id && this.photoSubject.next(id);
-  }
-
-  shrink() {
-    this.photoSubject.next(null);
   }
 }

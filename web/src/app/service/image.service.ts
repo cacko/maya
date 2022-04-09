@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Photo, PhotoEntity } from "../entity/photo";
-import { PhotosService } from "./photos.service";
+import { ApiService } from "./api.service";
 import { Subject } from "rxjs";
 
 @Injectable({
@@ -11,20 +11,19 @@ export class ImageService {
   public images: Photo[] = [];
   private ids: string[] = [];
 
+  public folder: string = "";
+  public filter: string = "";
+  public page: number = 0;
+
   private loadingSubject = new Subject<boolean>();
   loading = this.loadingSubject.asObservable();
 
-  constructor(
-    private photoService: PhotosService
-  ) {
-  }
+  private selectedSubject = new Subject<string | null | undefined>();
+  selected = this.selectedSubject.asObservable();
 
-  append(photos: PhotoEntity[]) {
-    photos.forEach(photo => {
-      const image = new Photo(photo);
-      this.ids.push(image.id);
-      this.images.push((image));
-    });
+  constructor(
+    private photoService: ApiService
+  ) {
   }
 
   startLoader() {
@@ -33,6 +32,39 @@ export class ImageService {
 
   endLoader() {
     this.loadingSubject.next(false);
+  }
+
+  setPage(page = 0) {
+    this.page = page;
+  }
+
+  setFilter(filter: string = "") {
+    if (this.filter && this.filter != filter) {
+      this.clear();
+    }
+    this.filter = filter;
+  }
+
+  setFolder(folder: string = "") {
+    if (this.folder && this.filter != folder) {
+      this.clear();
+    }
+    this.filter = folder;
+  }
+
+  load(): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.photoService.photos.subscribe((data) => {
+        const photos = data as PhotoEntity[];
+        photos.forEach(photo => {
+          const image = new Photo(photo);
+          this.ids.push(image.id);
+          this.images.push((image));
+        });
+        resolve(true);
+      });
+      this.photoService.load(++this.page, this.filter, this.folder);
+    });
   }
 
   byId(id: string): Promise<Photo | undefined> {
@@ -60,6 +92,8 @@ export class ImageService {
 
   clear() {
     this.images = [];
+    this.page = 0;
+    this.filter = "";
   }
 
   previous(id: string) {
@@ -70,6 +104,13 @@ export class ImageService {
   next(id: string) {
     const idx = Math.max(0, this.ids.indexOf(id) + 1);
     return this.ids[idx];
+  }
 
+  select(id: string) {
+    this.selectedSubject.next(id);
+  }
+
+  unselect() {
+    this.selectedSubject.next(null);
   }
 }

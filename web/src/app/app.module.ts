@@ -7,7 +7,7 @@ import { initializeApp, provideFirebaseApp } from "@angular/fire/app";
 import { environment } from "../environments/environment";
 import { getAuth, provideAuth } from "@angular/fire/auth";
 import { AuthService } from "./service/auth.service";
-import { PhotosService } from "./service/photos.service";
+import { ApiService } from "./service/api.service";
 import { SETTINGS as AUTH_SETTINGS } from "@angular/fire/compat/auth";
 import { AngularFireModule } from "@angular/fire/compat";
 import { CardComponent } from "./component/card/card.component";
@@ -66,7 +66,7 @@ const MATERIALS = [
       useValue: { appVerificationDisabledForTesting: true }
     },
     AuthService,
-    PhotosService
+    ApiService
   ],
   bootstrap: [AppComponent]
 })
