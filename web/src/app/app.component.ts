@@ -79,10 +79,14 @@ export class AppComponent implements OnInit, AfterViewInit {
           current: evt.currentVersion,
           available: evt.latestVersion
         }))).subscribe((res) => {
-        console.log("update available", res);
-        this.swUpdate
-          .activateUpdate()
-          .then(() => document.location.reload());
+        this.snackBar
+          .open("Update is available", "Update")
+          .onAction()
+          .subscribe(() =>
+            this.swUpdate
+              .activateUpdate()
+              .then(() => document.location.reload())
+          );
       });
     }
     this.auth.isLogged.subscribe(res => {
