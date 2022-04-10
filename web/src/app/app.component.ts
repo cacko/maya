@@ -157,7 +157,6 @@ export class AppComponent implements OnInit, AfterViewInit {
           return;
         }
         if (value != this.query) {
-          console.log("query", value);
           this.query = value;
           this.doSearch(value);
         }
@@ -168,8 +167,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   async doSearch(filter: string) {
-    console.log("do search");
-
     this.query = filter;
     this.keywords = this.query.split(" ");
     this.imageService.setFilter(filter);
@@ -193,7 +190,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   async onScrollDown() {
-    console.log("on scroll down");
     await this.imageService.load();
   }
 

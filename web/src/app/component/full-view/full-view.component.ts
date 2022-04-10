@@ -29,12 +29,9 @@ export class FullViewComponent implements OnInit {
       this.id = params["id"];
       this.images.startLoader();
       this.images.byId(this.id).then((image) => {
-        console.log(image);
         if (image) {
-          console.log(image);
           const im = new Image();
           im.onload = () => {
-            console.log('loaded', im);
             this.image = image;
             this.loaded = true;
             if (image.id) {
