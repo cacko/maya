@@ -5,6 +5,11 @@ import { AppComponent } from "./app.component";
 
 const routes: Routes = [
   {
+    path: "_/:folder",
+    component: AppComponent,
+    pathMatch: "full"
+  },
+  {
     path: "photo/:id",
     component: FullViewComponent,
     pathMatch: "full"

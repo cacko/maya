@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Photo, PhotoEntity } from "../entity/photo";
 import { ApiService } from "./api.service";
 import { Subject } from "rxjs";
+import { Folder, FolderEntity } from "../entity/folder";
 
 @Injectable({
   providedIn: "root"
@@ -9,6 +10,7 @@ import { Subject } from "rxjs";
 export class ImageService {
 
   public images: Photo[] = [];
+  public folders: Folder[] = [];
   private ids: string[] = [];
 
   public folder: string = "";
@@ -48,16 +50,38 @@ export class ImageService {
   }
 
   setFolder(folder: string = "") {
-    if (this.folder && this.filter != folder) {
+    if (this.folder && this.folder != folder) {
       this.clear();
     }
-    this.filter = folder;
+    this.folder = folder;
+  }
+
+  loadFolders(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.api
+        .folders()
+        .subscribe({
+          next: (data) => {
+            const folders = data as FolderEntity[];
+            if (!folders.length) {
+              return reject("nothing to load");
+            }
+            folders.forEach(data => {
+              const folder = new Folder(data);
+              this.folders.push(folder);
+            });
+            resolve(true);
+          }, error: (err) => {
+            reject(err);
+          }
+        });
+    });
   }
 
   load(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.api
-        .load(++this.page, this.filter, this.folder)
+        .photos(++this.page, this.filter, this.folder)
         .subscribe({
           next: (data) => {
             const photos = data as PhotoEntity[];
@@ -87,7 +111,7 @@ export class ImageService {
       }
       (async () => {
         let res = null;
-        while(res === null) {
+        while (res === null) {
           res = await this.loadId(id).catch(() => (res = undefined));
         }
         return resolve(res);

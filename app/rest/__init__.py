@@ -36,7 +36,7 @@ def get_page(rq) -> int:
 @do_cache()
 @bp.route('/photos.json')
 def photos():
-    records = Photo.get_records(get_page(request), query=request.args.get("filter"))
+    records = Photo.get_records(page=get_page(request), query=request.args.get("filter"), folder=request.args.get("folder"));
     return jsonify(records)
 
 

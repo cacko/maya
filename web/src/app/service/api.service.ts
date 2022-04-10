@@ -17,7 +17,13 @@ export class ApiService {
 
   }
 
-  load(page = 1, filter: string = "", folder: string = "") {
+
+  folders(page = 1, filter: string = "", folder: string = "") {
+    return this.httpClient.get(
+      `https://${this.API_BASE}/folders.json`);
+  }
+
+  photos(page = 1, filter: string = "", folder: string = "") {
     this.page = Math.max(1, page);
     let url = "photos";
 

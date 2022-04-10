@@ -1,0 +1,3 @@
+<div *ngIf="folder" (click)="onClick()">
+  <img *ngFor="let image of folder.photos" [src]="image.thumb">
+</div>
