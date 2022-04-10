@@ -1,5 +1,5 @@
 <div class="full-view" *ngIf="id" [attr.loaded]="loaded || null">
-  <img [src]="image.src" *ngIf="image">
+  <img [src]="image.src" *ngIf="image" [attr.aspect]="image.aspect">
   <div class="actions">
     <button class="menu_action" mat-mini-fab aria-label="Close full view" (click)="onClose()">
       <mat-icon>close</mat-icon>

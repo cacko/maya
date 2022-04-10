@@ -33,6 +33,10 @@ export class Photo {
     return `${this.CDN_HOST}/${this.data.full}`;
   }
 
+  public get aspect(): string {
+    return this.data.width > this.data.height ? 'maxHeight' : 'maxWidth';
+  }
+
   public get style(): string {
     const ratio = this.data.width / this.data.height;
 

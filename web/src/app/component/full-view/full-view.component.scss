@@ -30,8 +30,18 @@
 
     img {
       object-fit: cover;
-      height: 100%;
-      width: 100vw;
+
+
+      &[aspect=maxWidth] {
+        max-height: 100%;
+        width: 100vw;
+      }
+
+      &[aspect=maxHeight] {
+        height: 100%;
+        max-width: 100vw;
+      }
+
     }
 
     .actions {
