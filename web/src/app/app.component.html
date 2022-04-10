@@ -11,24 +11,9 @@
        (scrolled)="onScrollDown()"
        [horizontal]="isHorizontal"
        [attr.expanded]="selected"
-       *ngIf="folder"
   >
     <app-card *ngFor="let image of imageService.images" [image]="image" class="card" [ngClass]="image.style"
               [attr.id]="image.id" [attr.expanded]="selected"></app-card>
-  </div>
-
-
-  <div class="container" infiniteScroll
-       [infiniteScrollDistance]="scrollDistance"
-       [infiniteScrollUpDistance]="scrollUpDistance"
-       [infiniteScrollThrottle]="throttle"
-       (scrolled)="onScrollDown()"
-       [horizontal]="isHorizontal"
-       [attr.expanded]="selected"
-       *ngIf="!folder"
-  >
-    <app-folder *ngFor="let folder of imageService.folders" [folder]="folder" class="folder"
-              [attr.id]="folder.id"></app-folder>
   </div>
 
   <div class="filters" [attr.filtered]="query.length > 2 || null">

@@ -37,7 +37,11 @@
         overflow-y: hidden;
         gap: 0;
         height: 50px;
-
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+        &::-webkit-scrollbar {
+          display: none;
+        }
         .card {
           width: 50px;
           flex-shrink: 0;

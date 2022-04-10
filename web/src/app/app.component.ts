@@ -51,7 +51,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   query: string = "";
   isSearching = false;
   keywords: string[] = [];
-  folder: string = "";
 
   private keyboardInterval: Subscription | undefined;
   private overlayRef: OverlayRef | undefined;
@@ -93,7 +92,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.auth.isLogged.subscribe(res => {
       if (res) {
         this.loading = true;
-        this.imageService.loadFolders().then(() => {
+        this.imageService.load().then(() => {
           this.loading = false;
         });
       }
@@ -148,15 +147,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   };
 
   async ngOnInit() {
-    this.route.params.subscribe((params) => {
-      const folder = params["folder"];
-      this.folder = folder;
-      this.imageService.setFolder(folder);
-      this.imageService.startLoader();
-      this.imageService.load().then(() => {
-        this.imageService.endLoader();
-      });
-    });
     this.form.get("query")?.valueChanges.subscribe((value: string) => {
       if (this.keyboardInterval && !this.keyboardInterval.closed) {
         this.keyboardInterval.unsubscribe();

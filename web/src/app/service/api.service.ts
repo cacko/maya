@@ -25,16 +25,11 @@ export class ApiService {
 
   photos(page = 1, filter: string = "", folder: string = "") {
     this.page = Math.max(1, page);
-    let url = "photos";
-
-    if (folder) {
-      url = "folder";
-    }
-
     return this.httpClient.get(
-      `https://${this.API_BASE}/${url}.json`, {
+      `https://${this.API_BASE}/photos.json`, {
         params: {
-          filter: filter,
+          filter,
+          folder,
           page
         }
       }
