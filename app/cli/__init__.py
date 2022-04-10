@@ -1,4 +1,6 @@
 from flask import Blueprint
+from peewee import fn
+
 from app.storage import Storage
 from pathlib import Path
 from app.upload import Uploader
@@ -7,12 +9,16 @@ from app.local import Local
 from app.exif import Exif
 import click
 from app.face.train import Train
+from app.face.recognise import Recognise
+from app.face.models import MatchData
 from tqdm import tqdm
 import face_recognition
 import numpy as np
 from PIL import Image, ImageDraw, ImageOps
 from app.storage.models import Face, PhotoFace
 import pickle
+from io import BytesIO
+from hashlib import blake2s
 
 bp = Blueprint("cli", __name__)
 
@@ -88,8 +94,29 @@ def cmd_train():
                 name=face_data.name,
                 image=pickle.dumps(face_data.image),
                 encoding=pickle.dumps(face_data.encodings),
-                is_trained=True
-            ).execute()
+                is_trained=True,
+                hash=Face.get_hash(face_data.image)
+            ).on_conflict_ignore().execute()
+
+
+@bp.cli.command('tag')
+@click.argument("path")
+def cmd_tag(path):
+    matched_data = [MatchData(
+        encodings=pickle.loads(record.encoding),
+        name=record.name,
+        face_id=record.id
+    ) for record in (Face.select())]
+    Recognise.register(matched_data)
+    path = Path(path)
+    res = Recognise.faces(path, True)
+    if len(res):
+        names = ", ".join([r.name for r in res])
+        buff = BytesIO(res[0].tagged)
+        buff.seek(0)
+        image = Image.open(buff)
+        image.show()
+        print(names)
 
 
 @bp.cli.command('faces')
@@ -152,6 +179,29 @@ def cmd_faces(path):
             PhotoFace.insert_many(matched).on_conflict_ignore().execute()
         frames = []
         matched = []
+
+
+@bp.cli.command("find")
+@click.argument("name")
+def cmd_find(name):
+    res = (Photo \
+           .select(Photo.full, Photo.folder, fn.STRING_AGG(Face.name, ",")) \
+           .join(PhotoFace) \
+           .join(Face) \
+           .where(Face.name == name) \
+           .group_by(Photo.full, Photo.folder))
+    for rec in res.dicts().iterator():
+        print(rec)
+
+
+@bp.cli.command("hash")
+def cmd_hash():
+    res = Face.select()
+    for rec in res.iterator():
+        with Storage.db.atomic():
+            rec.hash = Face.get_hash(pickle.loads(rec.image))
+            rec.save()
+        print(rec)
 
 
 @bp.cli.command("dbinit")

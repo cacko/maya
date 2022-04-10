@@ -20,7 +20,7 @@ class Photo(BaseModel):
             folder: str = None,
             per_page: int = 100
     ) -> list['Photo']:
-        q = cls.select()
+        q = cls.select(fn.SUM)
         if query:
             q = q.where(
                 (cls.full ** f"%{query}%")
