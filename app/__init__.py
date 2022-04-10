@@ -5,6 +5,7 @@ import os
 from flask.json import JSONEncoder
 from flask_cors import CORS
 from app.storage import Storage
+from app.face.train import Train
 from app.s3 import S3
 
 
@@ -40,6 +41,7 @@ def create_app(test_config=None):
 
     Storage.register(app)
     S3.register(app)
+    Train.register(app)
 
     from . import cli
     from . import rest

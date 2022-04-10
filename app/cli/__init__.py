@@ -1,12 +1,18 @@
 from flask import Blueprint
+from app.storage import Storage
 from pathlib import Path
 from app.upload import Uploader
-from app.storage import Storage
 from app.storage.models import Photo
 from app.local import Local
 from app.exif import Exif
 import click
+from app.face.train import Train
 from tqdm import tqdm
+import face_recognition
+import numpy as np
+from PIL import Image, ImageDraw, ImageOps
+from app.storage.models import Face, PhotoFace
+import pickle
 
 bp = Blueprint("cli", __name__)
 
@@ -74,8 +80,82 @@ def cmd_orientation(path):
                 fp.write(f"{f}\n")
 
 
+@bp.cli.command('train')
+def cmd_train():
+    with Storage.db.atomic():
+        for face_data in Train.data:
+            Face.insert(
+                name=face_data.name,
+                image=pickle.dumps(face_data.image),
+                encoding=pickle.dumps(face_data.encodings),
+                is_trained=True
+            ).execute()
+
+
+@bp.cli.command('faces')
+@click.argument("path")
+def cmd_faces(path):
+    known_face_encodings = []
+    known_face_names = []
+    known_face_id = []
+    for record in (Face.select()):
+        known_face_encodings.append(pickle.loads(record.encoding))
+        known_face_names.append(record.name)
+        known_face_id.append(record.id)
+
+    path = Path(path)
+    frames = []
+    matched = []
+    total_photos = Photo.select().count()
+    progress = tqdm(total=total_photos)
+    for photo in Photo.select().iterator():
+        f = path / photo.full
+        unknown_image = face_recognition.load_image_file(f.resolve().as_posix())
+        img = Image.fromarray(unknown_image)
+        img = ImageOps.pad(img, (500, 500))
+        unknown_image = np.asarray(img)
+        if len(frames) < 10 and total_photos:
+            frames.append((photo, unknown_image))
+            total_photos -= 1
+            progress.update()
+            if total_photos:
+                continue
+        batch_of_face_locations = face_recognition.batch_face_locations([f[1] for f in frames])
+        for frame_number_in_batch, face_locations in enumerate(batch_of_face_locations):
+            record = frames[frame_number_in_batch][0]
+            unknown_image = frames[frame_number_in_batch][1]
+            # pil_image = Image.fromarray(unknown_image)
+            # draw = ImageDraw.Draw(pil_image)
+            face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
+            for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+                matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+                # name = "Unknown"
+                face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances)
+                if matches[best_match_index]:
+                    # name = known_face_names[best_match_index]
+                    face_id = known_face_id[best_match_index]
+                    matched.append({
+                        'photo_id': record.id,
+                        'face_id': face_id
+                    })
+                # draw.rectangle(((left, top), (right, bottom)), outline=(0, 0, 255))
+                # text_width, text_height = draw.textsize(name)
+                # draw.rectangle(((left, bottom - text_height - 10), (right, bottom)), fill=(0, 0, 255),
+                #                outline=(0, 0, 255))
+                # draw.text((left + 6, bottom - text_height - 5), name, fill=(255, 255, 255, 255))
+            # del draw
+            # f = Path(f).resolve()
+            # ff = f.parent.parent / "results" / f"{f.stem}.jpg"
+            # pil_image.save(ff)
+        with Storage.db.atomic():
+            PhotoFace.insert_many(matched).on_conflict_ignore().execute()
+        frames = []
+        matched = []
+
+
 @bp.cli.command("dbinit")
 def cmd_dbinit():
-    from app.storage.models import Photo
+    from app.storage.models import Photo, Face, PhotoFace
     with Storage.db as db:
-        db.create_tables([Photo])
+        db.create_tables([Photo, Face, PhotoFace])

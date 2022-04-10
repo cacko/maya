@@ -5,9 +5,8 @@ from playhouse.db_url import connect, parse
 
 class StorageMeta(type):
     _app: Flask = None
-    _config: dict = None
+    config: dict = None
     _instance = None
-    _db: PostgresqlDatabase = None
 
     def __call__(cls, *args, **kwargs):
         if not cls._instance:
@@ -16,15 +15,19 @@ class StorageMeta(type):
 
     def register(cls, app: Flask):
         cls._app = app
-        cls._config = app.config.get_namespace("DB_")
-        parsed = parse(cls._config.get("url"))
-        cls._db: PostgresqlDatabase = PostgresqlDatabase(**parsed)
-        cls._instance = cls()
+        cls.config = app.config.get_namespace("DB_")
 
     @property
     def db(cls) -> PostgresqlDatabase:
-        return cls._db
+        return cls().get_db()
 
 
 class Storage(object, metaclass=StorageMeta):
-    pass
+    __db: PostgresqlDatabase = None
+
+    def __init__(self):
+        parsed = parse(Storage.config.get("url"))
+        self.__db: PostgresqlDatabase = PostgresqlDatabase(**parsed)
+
+    def get_db(self) -> PostgresqlDatabase:
+        return self.__db

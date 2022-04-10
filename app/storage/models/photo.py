@@ -29,3 +29,4 @@ class Photo(BaseModel):
             q = q.where(cls.folder == folder)
         q = q.order_by(cls.timestamp.desc()).paginate(page, per_page)
         return list(q.dicts())
+
