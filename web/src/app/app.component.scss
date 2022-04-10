@@ -33,6 +33,7 @@
       &[expanded] {
         display: flex;
         overflow-x: auto;
+        overflow-y: hidden;
         height: 50px;
         -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none; /* Firefox */
