@@ -14,7 +14,7 @@ from app.face.models import MatchData
 from tqdm import tqdm
 import face_recognition
 import numpy as np
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageOps
 from app.storage.models import Face, PhotoFace
 import pickle
 from io import BytesIO
@@ -99,9 +99,9 @@ def cmd_train():
             ).on_conflict_ignore().execute()
 
 
-@bp.cli.command('tag')
+@bp.cli.command('self-train')
 @click.argument("path")
-def cmd_tag(path):
+def cmd_self_train(path):
     matched_data = [MatchData(
         encodings=pickle.loads(record.encoding),
         name=record.name,
@@ -109,14 +109,52 @@ def cmd_tag(path):
     ) for record in (Face.select())]
     Recognise.register(matched_data)
     path = Path(path)
-    res = Recognise.faces(path, True)
-    if len(res):
-        names = ", ".join([r.name for r in res])
-        buff = BytesIO(res[0].tagged)
-        buff.seek(0)
-        image = Image.open(buff)
-        image.show()
-        print(names)
+    if path.is_file():
+        it = [path]
+    else:
+        it = Local(path)
+    for img_path in tqdm(it):
+        res = Recognise.faces(img_path, True)
+        if len(res):
+            for m in res:
+                with open(m.src, "rb") as img_fp:
+                    img = Image.open(img_fp)
+                    img.thumbnail(Recognise.SIZE)
+                    upper, right, lower, left = m.location
+                    sample = img.crop((left, upper, right, lower))
+                    h = blake2s(digest_size=20)
+                    h.update(m.src.encode())
+                    sample.save(f"{m.name}_{h.hexdigest()}.jpg", "jpeg")
+
+
+@bp.cli.command('tag')
+@click.argument("path")
+@click.option("-f", "--find-matches", default=None)
+def cmd_tag(path, find_matches):
+    matched_data = [MatchData(
+        encodings=pickle.loads(record.encoding),
+        name=record.name,
+        face_id=record.id
+    ) for record in (Face.select())]
+    Recognise.register(matched_data)
+    path = Path(path)
+    if path.is_file():
+        it = [path]
+    else:
+        it = Local(path)
+    if find_matches:
+        find_matches = list(map(lambda n: n.strip().lower(), find_matches.split(",")))
+        print(f"Matching only {','.join(find_matches)}")
+    for img_path in tqdm(it):
+        res = Recognise.faces(img_path, True, 0.2)
+        if len(res):
+            names = [r.name for r in res]
+            if find_matches and len(list(set(find_matches) & set(names))) == 0:
+                continue
+            buff = BytesIO(res[0].tagged)
+            buff.seek(0)
+            image = Image.open(buff)
+            image.show()
 
 
 @bp.cli.command('faces')
@@ -184,11 +222,11 @@ def cmd_faces(path):
 @bp.cli.command("find")
 @click.argument("name")
 def cmd_find(name):
-    res = (Photo \
-           .select(Photo.full, Photo.folder, fn.STRING_AGG(Face.name, ",")) \
-           .join(PhotoFace) \
-           .join(Face) \
-           .where(Face.name == name) \
+    res = (Photo
+           .select(Photo.full, Photo.folder, fn.STRING_AGG(Face.name, ","))
+           .join(PhotoFace)
+           .join(Face)
+           .where(Face.name == name)
            .group_by(Photo.full, Photo.folder))
     for rec in res.dicts().iterator():
         print(rec)
@@ -204,8 +242,8 @@ def cmd_hash():
         print(rec)
 
 
-@bp.cli.command("dbinit")
-def cmd_dbinit():
+@bp.cli.command("db_init")
+def cmd_db_init():
     from app.storage.models import Photo, Face, PhotoFace
     with Storage.db as db:
         db.create_tables([Photo, Face, PhotoFace])

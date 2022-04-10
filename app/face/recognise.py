@@ -3,15 +3,16 @@ import numpy as np
 from app.face.models import MatchData, FaceMatch
 from pathlib import Path
 from typing import Generator
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 
 
 class RecogniseMeta(type):
-    _instance: 'Recognise' = None
     _match_data: list[MatchData] = None
+    _instance: 'Recognise' = None
 
     SIZE = (1000, 1000)
+    PAD_SIZE = (500, 500)
 
     def __call__(cls, *args, **kwargs):
         if not cls._instance:
@@ -19,14 +20,17 @@ class RecogniseMeta(type):
         return cls._instance
 
     @property
-    def match_data(cls) -> list[MatchData]:
-        return cls._match_data
+    def known_face_encodings(cls) -> list:
+        return [x.encodings for x in cls._match_data]
+
+    def match_for_idx(cls, idx) -> MatchData:
+        return cls._match_data[idx]
 
     def register(cls, match_data: list[MatchData]):
         cls._match_data = match_data
 
-    def faces(cls, photo: Path, with_tags=False) -> list[FaceMatch]:
-        return cls().get_face_matches(photo, with_tags)
+    def faces(cls, photo: Path, with_tags=False, tolerance=0.4) -> list[FaceMatch]:
+        return cls().get_face_matches(photo, with_tags, tolerance)
 
     def batch_faces(cls, photos: list[Path], with_tags=False) -> Generator[list[FaceMatch], None, None]:
         yield from cls().get_batch_matches(photos, with_tags)
@@ -54,20 +58,9 @@ def add_tags(matches: list[FaceMatch]):
             m.tagged = output.getvalue()
 
 
-def match_for_idx(idx) -> MatchData:
-    return Recognise.match_data[idx]
-
-
 class Recognise(object, metaclass=RecogniseMeta):
 
-    def __init__(self):
-        pass
-
-    @property
-    def known_face_encodings(self) -> list:
-        return [x.encodings for x in Recognise.match_data]
-
-    def get_face_matches(self, photo: Path, with_tags=False):
+    def get_face_matches(self, photo: Path, with_tags=False, tolerance=0.4):
         if not photo.exists():
             raise FileNotFoundError
         np_img = face_recognition.load_image_file(photo.resolve().as_posix())
@@ -78,11 +71,13 @@ class Recognise(object, metaclass=RecogniseMeta):
         face_encodings = face_recognition.face_encodings(np_img, face_locations)
         results = []
         for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-            matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
-            face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+            matches = face_recognition.compare_faces(self.__class__.known_face_encodings, face_encoding, tolerance)
+            if not matches:
+                continue
+            face_distances = face_recognition.face_distance(self.__class__.known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
-                face_data = match_for_idx(best_match_index)
+                face_data = self.__class__.match_for_idx(best_match_index)
                 results.append(FaceMatch(
                     name=face_data.name,
                     face_id=face_data.face_id,
