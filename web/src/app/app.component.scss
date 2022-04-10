@@ -24,12 +24,6 @@
       overflow-x: hidden;
       width: 100%;
 
-      -ms-overflow-style: none; /* IE and Edge */
-      scrollbar-width: none; /* Firefox */
-      &::-webkit-scrollbar {
-        display: none;
-      }
-
 
       @media screen and (min-width: 600px) {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -43,11 +37,6 @@
         overflow-y: hidden;
         gap: 0;
         height: 50px;
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
-        &::-webkit-scrollbar {
-          display: none;
-        }
 
         .card {
           width: 50px;
