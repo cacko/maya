@@ -4,6 +4,7 @@ from peewee import fn
 from dataclasses_json import dataclass_json
 from dataclasses import dataclass
 from json import JSONEncoder
+from typing import Optional
 
 
 @dataclass_json
@@ -11,12 +12,16 @@ from json import JSONEncoder
 class FolderItem(JSONEncoder):
     folder: str
     count: int
+    sample: Optional[list[Photo]] = None
+
+    def __post_init__(self):
+        self.sample = list(Photo.get_records(folder=self.folder, per_page=9))
 
     def default(self, o):
         return self.to_dict()
 
 
-class Folder(Aggregated):
+class Folders(Aggregated):
 
     def query(self, *args, **kwargs):
         query = (Photo

@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, Response
 from app.storage.models import Photo
 from hashlib import blake2s
 from functools import wraps
-from app.rest.models.folder import Folder
+from app.rest.models.folder import Folders
 
 bp = Blueprint('rest', __name__, url_prefix="/maya/rest")
 
@@ -43,7 +43,7 @@ def photos():
 @do_cache()
 @bp.route('/folders.json')
 def folders():
-    records = Folder.get_records()
+    records = Folders.get_records()
     return jsonify(records)
 
 

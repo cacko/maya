@@ -15,9 +15,10 @@ class Photo(BaseModel):
     @classmethod
     def get_records(
             cls,
-            page=1,
+            page: int = 1,
             query: str = None,
-            folder: str = None
+            folder: str = None,
+            per_page: int = 100
     ) -> list['Photo']:
         q = cls.select()
         if query:
@@ -26,5 +27,5 @@ class Photo(BaseModel):
             )
         if folder:
             q = q.where(cls.folder == folder)
-        q = q.order_by(cls.timestamp.desc()).paginate(page, 100)
+        q = q.order_by(cls.timestamp.desc()).paginate(page, per_page)
         return list(q.dicts())
