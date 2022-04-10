@@ -23,7 +23,7 @@ class Photo(BaseModel):
         q = cls.select()
         if query:
             q = q.where(
-                (cls.folder ** f"%{query}%") | (cls.full ** f"%{query}%")
+                (cls.full ** f"%{query}%")
             )
         if folder:
             q = q.where(cls.folder == folder)
