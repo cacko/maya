@@ -49,13 +49,6 @@ export class FullViewComponent implements OnInit {
     });
   }
 
-  style(): { [key: string]: string } {
-    return {
-      "background-image": `url("${this.image?.src}")`,
-      "background-size": "contain"
-    };
-  }
-
   async onClose() {
     await this.images.unselect();
   }

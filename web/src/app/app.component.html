@@ -1,6 +1,19 @@
 <app-loader *ngIf="loading"></app-loader>
 
 <div class="root" [attr.loading]="loading || null">
+
+  <router-outlet></router-outlet>
+
+  <div class="container" infiniteScroll
+       [infiniteScrollDistance]="scrollDistance"
+       [infiniteScrollUpDistance]="scrollUpDistance"
+       [infiniteScrollThrottle]="throttle"
+       (scrolled)="onScrollDown()"
+       [horizontal]="isHorizontal"
+       [attr.expanded]="selected">
+    <app-card *ngFor="let image of imageService.images" [image]="image" class="card" [ngClass]="image.style"
+              [attr.id]="image.id" [attr.expanded]="selected"></app-card>
+
   <div class="filters" [attr.filtered]="query.length > 2 || null">
     <mat-chip-list #chipList multiple>
       <mat-chip
@@ -24,19 +37,8 @@
   </div>
 
 
-  <div class="container" infiniteScroll
-       [infiniteScrollDistance]="scrollDistance"
-       [infiniteScrollUpDistance]="scrollUpDistance"
-       [infiniteScrollThrottle]="throttle"
-       (scrolled)="onScrollDown()"
-       [horizontal]="isHorizontal"
-       [attr.expanded]="selected">
-    <app-card *ngFor="let image of imageService.images" [image]="image" class="card" [ngClass]="image.style"
-              [attr.id]="image.id" [attr.expanded]="selected"></app-card>
+
   </div>
-
-
-  <router-outlet></router-outlet>
 
   <ng-template #searchForm>
     <form [formGroup]="form">

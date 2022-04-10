@@ -82,9 +82,7 @@ export class ImageService {
     return new Promise((resolve) => {
       let res = null;
       if (this.ids.includes(id)) {
-        console.log("in includes");
         res = this.images.find(i => i.id == id);
-        console.log(res);
         return resolve(res);
       }
       (async () => {

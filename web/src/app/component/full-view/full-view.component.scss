@@ -1,10 +1,14 @@
 :host {
+  height: calc(100vh - 50px);
+  display: flex;
+  justify-content: center;
+
   .full-view {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     overflow: hidden;
+    position: relative;
 
 
     @keyframes appear {
@@ -18,64 +22,61 @@
     }
 
 
-    .image {
-      background-repeat: no-repeat;
-      background-position: center;
-      position: relative;
-      width: 100%;
+    &[loaded="true"] {
+      opacity: 1;
+      animation-duration: 3s;
+      animation-name: appear;
+    }
+
+    img {
+      object-fit: cover;
       height: 100%;
-      opacity: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      max-width: 100%;
+    }
 
+    .actions {
+      position: absolute;
 
-      &[loaded="true"] {
-        opacity: 1;
-        animation-duration: 3s;
-        animation-name: appear;
-      }
-
-      .image-container {
-        display: flex;
-        position: relative;
-        img {
-          opacity: 0;
-          max-width: 100%;
-          max-height: 100%;
-        }
-        button.menu_action {
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
-          opacity: 0;
-        }
-
-        .navigation {
-          position: absolute;
-          opacity: 0;
-          height: 100%;
-          display: flex;
-          width: 100%;
-          z-index: 3;
-          justify-content: space-between;
-          align-items: center;
-
-          >div {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            padding: 1em;
-            &:hover {
-              opacity: 1;
-
-              cursor: pointer;
-              transform: matrix(1.25, 0, 0, 1.25, 0, 0);
-            }
-          }
-        }
+      button.menu_action {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        opacity: 0;
       }
     }
+
+    img:hover {
+      .navigation {
+        opacity: 1;
+        transform: matrix(1.25, 0, 0, 1.25, 0, 0);
+      }
+
+    }
+
+    .navigation {
+      position: absolute;
+      opacity: 1;
+      height: 100%;
+      display: flex;
+      width: 100%;
+      z-index: 3;
+      justify-content: space-between;
+      align-items: center;
+
+      > div {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 1em;
+
+        &:hover {
+          cursor: pointer;
+        }
+
+      }
+    }
+
+
   }
 
 }

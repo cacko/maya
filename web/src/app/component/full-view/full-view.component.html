@@ -1,22 +1,16 @@
-<div class="full-view" *ngIf="id">
-  <div class="image" [ngStyle]="style()" [attr.loaded]="loaded || null">
-    <div class="image-container" >
-      <img [src]="image.src" *ngIf="image">
-
-      <div class="actions">
-        <button class="menu_action" mat-mini-fab aria-label="Close full view" (click)="onClose()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-      <div class="navigation">
-        <div class="back"(click)="onPrevious()">
-          <mat-icon>arrow_back_ios</mat-icon>
-        </div>
-        <div class="next" (click)="onNext()">
-          <mat-icon>arrow_forward_ios</mat-icon>
-        </div>
-      </div>
-
+<div class="full-view" *ngIf="id" [attr.loaded]="loaded || null">
+  <img [src]="image.src" *ngIf="image">
+  <div class="actions">
+    <button class="menu_action" mat-mini-fab aria-label="Close full view" (click)="onClose()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="navigation">
+    <div class="back" (click)="onPrevious()">
+      <mat-icon>arrow_back_ios</mat-icon>
+    </div>
+    <div class="next" (click)="onNext()">
+      <mat-icon>arrow_forward_ios</mat-icon>
     </div>
   </div>
 </div>
