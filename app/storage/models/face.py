@@ -24,4 +24,4 @@ class Face(BaseModel):
             encodings=pickle.loads(record.encoding),
             name=record.name,
             face_id=record.id
-        ) for record in (cls.select())]
+        ) for record in cls.select().iterator()]

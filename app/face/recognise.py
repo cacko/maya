@@ -2,7 +2,7 @@ import face_recognition
 import numpy as np
 from app.face.models import MatchData, FaceMatch
 from pathlib import Path
-from typing import Generator
+from app.storage.models import Photo
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 
@@ -32,8 +32,8 @@ class RecogniseMeta(type):
     def faces(cls, photo: Path, with_tags=False, tolerance=0.4) -> list[FaceMatch]:
         return cls().get_face_matches(photo, with_tags, tolerance)
 
-    def batch_faces(cls, photos: list[Path], with_tags=False) -> Generator[list[FaceMatch], None, None]:
-        yield from cls().get_batch_matches(photos, with_tags)
+    def batch_faces(cls, root: Path, photos: list[Photo], with_tags=False, tolerance=0.4) -> list[FaceMatch]:
+        return cls().get_batch_matches(root, photos, with_tags, tolerance)
 
 
 def add_tags(matches: list[FaceMatch]):
@@ -88,5 +88,41 @@ class Recognise(object, metaclass=RecogniseMeta):
             add_tags(results)
         return results
 
-    def get_batch_matches(self, photos: Path, with_tags=False):
-        pass
+    def get_batch_matches(self, root: Path, photos: list[Photo], with_tags=False, tolerance=0.4) -> list[FaceMatch]:
+        batch = []
+        results = []
+        for photo in photos:
+            f = root / photo.full
+            unknown_image = face_recognition.load_image_file(
+                f.resolve().as_posix())
+            img = Image.fromarray(unknown_image)
+            img = ImageOps.pad(img, (500, 500))
+            unknown_image = np.asarray(img)
+            batch.append((photo, unknown_image))
+        batch_face_locations = face_recognition.batch_face_locations(
+            [f[1] for f in batch])
+        for idx, face_locations in enumerate(batch_face_locations):
+            photo_results = []
+            photo = batch[idx][0]
+            unknown_image = batch[idx][1]
+            face_encodings = face_recognition.face_encodings(
+                unknown_image, face_locations)
+            for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+                matches = face_recognition.compare_faces(
+                    self.__class__.known_face_encodings, face_encoding, tolerance=tolerance)
+                face_distances = face_recognition.face_distance(
+                    self.__class__.known_face_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances)
+                if matches[best_match_index]:
+                    face_data = self.__class__.match_for_idx(best_match_index)
+                    photo_results.append(FaceMatch(
+                        name=face_data.name,
+                        face_id=face_data.face_id,
+                        photo_id=photo.id,
+                        src=(root / photo.full).resolve().as_posix(),
+                        location=(top, right, bottom, left)
+                    ))
+            if with_tags:
+                add_tags(photo_results)
+            results += photo_results
+        return results

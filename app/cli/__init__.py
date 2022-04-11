@@ -99,17 +99,14 @@ def cmd_train(overwrite):
                 'is_trained': True,
                 'hash': Face.get_hash(face_data.image)
             }
-            id = None
             if overwrite:
-                id = Face.insert(**args).on_conflict(
+                Face.insert(**args).on_conflict(
                     conflict_target=[Face.hash],
                     preserve=[Face.image, Face.is_trained, Face.name],
                     update={Face.encoding: pickle.dumps(face_data.encodings)}
                 ).execute()
             else:
-                id = Face.insert(**args).on_conflict_ignore().execute()
-            if not id:
-                print(face_data)
+                Face.insert(**args).on_conflict_ignore().execute()
 
 
 @bp.cli.command('self-train')
@@ -164,69 +161,26 @@ def cmd_tag(path, find_matches, tolerance, quiet):
 @bp.cli.command('faces')
 @click.argument("path")
 @click.option("-t", "--tolerance", default=0.4)
+@click.option("-q", "--quiet", is_flag=True, default=False)
 def cmd_faces(path, tolerance, quiet):
-    known_face_encodings = []
-    known_face_names = []
-    known_face_id = []
-    for record in (Face.select()):
-        known_face_encodings.append(pickle.loads(record.encoding))
-        known_face_names.append(record.name)
-        known_face_id.append(record.id)
-
+    Recognise.register(Face.get_matched_data())
     path = Path(path)
-    frames = []
-    matched = []
+    batch = []
     total_photos = Photo.select().count()
     progress = tqdm(total=total_photos)
     for photo in Photo.select().iterator():
-        f = path / photo.full
-        unknown_image = face_recognition.load_image_file(
-            f.resolve().as_posix())
-        img = Image.fromarray(unknown_image)
-        img = ImageOps.pad(img, (500, 500))
-        unknown_image = np.asarray(img)
-        if len(frames) < 10 and total_photos:
-            frames.append((photo, unknown_image))
-            total_photos -= 1
-            progress.update()
-            if total_photos:
-                continue
-        batch_of_face_locations = face_recognition.batch_face_locations(
-            [f[1] for f in frames])
-        for frame_number_in_batch, face_locations in enumerate(batch_of_face_locations):
-            record = frames[frame_number_in_batch][0]
-            unknown_image = frames[frame_number_in_batch][1]
-            # pil_image = Image.fromarray(unknown_image)
-            # draw = ImageDraw.Draw(pil_image)
-            face_encodings = face_recognition.face_encodings(
-                unknown_image, face_locations)
-            for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-                matches = face_recognition.compare_faces(
-                    known_face_encodings, face_encoding)
-                # name = "Unknown"
-                face_distances = face_recognition.face_distance(
-                    known_face_encodings, face_encoding)
-                best_match_index = np.argmin(face_distances)
-                if matches[best_match_index]:
-                    # name = known_face_names[best_match_index]
-                    face_id = known_face_id[best_match_index]
-                    matched.append({
-                        'photo_id': record.id,
-                        'face_id': face_id
-                    })
-                # draw.rectangle(((left, top), (right, bottom)), outline=(0, 0, 255))
-                # text_width, text_height = draw.textsize(name)
-                # draw.rectangle(((left, bottom - text_height - 10), (right, bottom)), fill=(0, 0, 255),
-                #                outline=(0, 0, 255))
-                # draw.text((left + 6, bottom - text_height - 5), name, fill=(255, 255, 255, 255))
-            # del draw
-            # f = Path(f).resolve()
-            # ff = f.parent.parent / "results" / f"{f.stem}.jpg"
-            # pil_image.save(ff)
+        total_photos -= 1
+        batch.append(photo)
+        progress.update()
+        if len(batch) < 10 and total_photos:
+            continue
+        res = Recognise.batch_faces(path, batch, with_tags=quiet, tolerance=tolerance)
+        if not len(res):
+            continue
+        matched = [{"photo_id": m.photo_id, "face_id": m.face_id} for m in res]
         with Storage.db.atomic():
             PhotoFace.insert_many(matched).on_conflict_ignore().execute()
-        frames = []
-        matched = []
+        batch = []
 
 
 @bp.cli.command("find")

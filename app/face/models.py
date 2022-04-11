@@ -28,3 +28,4 @@ class FaceMatch:
     tagged: Optional[bytes] = None
     src: Optional[str] = None
     location: Optional[tuple[float, float, float, float]] = None
+    photo_id: Optional[int] = None
