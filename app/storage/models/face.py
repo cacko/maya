@@ -3,6 +3,7 @@ from app.storage.models import BaseModel
 from hashlib import blake2s
 from app.face.models import MatchData
 import pickle
+from tqdm import tqdm
 
 
 class Face(BaseModel):
@@ -18,10 +19,10 @@ class Face(BaseModel):
         h.update(data)
         return h.hexdigest()
 
-    @classmethod
-    def get_matched_data(cls):
+    @staticmethod
+    def get_matched_data():
         return [MatchData(
             encodings=pickle.loads(record.encoding),
             name=record.name,
             face_id=record.id
-        ) for record in cls.select().iterator()]
+        ) for record in Face.select(Face.encoding, Face.name, Face.id).iterator()]

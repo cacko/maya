@@ -11,6 +11,7 @@ class Photo(BaseModel):
     height = IntegerField()
     latitude = FloatField(null=True)
     longitude = FloatField(null=True)
+    processed = BooleanField(default=False)
 
     @classmethod
     def get_records(

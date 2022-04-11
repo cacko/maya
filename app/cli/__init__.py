@@ -1,5 +1,4 @@
 from flask import Blueprint
-from peewee import fn
 from app.storage import Storage
 from pathlib import Path
 from app.upload import Uploader
@@ -9,15 +8,14 @@ from app.exif import Exif
 import click
 from app.face.train import Train
 from app.face.recognise import Recognise
-from tqdm import tqdm
-import face_recognition
-import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image
 from app.storage.models import Face, PhotoFace
 import pickle
 from hashlib import blake2s
 from app.core.image import show_tagged, save_tagged
 from datetime import datetime
+from app.core.progress import Progress
+from tqdm import tqdm
 
 bp = Blueprint("cli", __name__)
 
@@ -161,25 +159,40 @@ def cmd_tag(path, find_matches, tolerance, quiet):
 @bp.cli.command('faces')
 @click.argument("path")
 @click.option("-t", "--tolerance", default=0.4)
-@click.option("-q", "--quiet", is_flag=True, default=False)
-def cmd_faces(path, tolerance, quiet):
+@click.option("-r", "--save-results", is_flag=True, default=False)
+@click.option("-b", "--batch-size", type=int, default=10)
+@click.option("-w", "--overwrite", is_flag=True, default=False)
+def cmd_faces(path, tolerance=0.4, save_results=False, batch_size=10, overwrite=False):
     Recognise.register(Face.get_matched_data())
     path = Path(path)
-    batch = []
-    total_photos = Photo.select().count()
-    progress = tqdm(total=total_photos)
-    for photo in Photo.select().iterator():
+    batch: list[Photo] = []
+    q = Photo.select()
+    if not overwrite:
+        q = q.where(Photo.processed == False)
+    total_photos = q.count()
+    progress = Progress(total=total_photos, desc="Photos")
+    for record in q.iterator():
         total_photos -= 1
-        batch.append(photo)
-        progress.update()
-        if len(batch) < 10 and total_photos:
+        batch.append(record)
+        if len(batch) < batch_size and total_photos > 0:
             continue
-        res = Recognise.batch_faces(path, batch, with_tags=quiet, tolerance=tolerance)
-        if not len(res):
-            continue
-        matched = [{"photo_id": m.photo_id, "face_id": m.face_id} for m in res]
-        with Storage.db.atomic():
-            PhotoFace.insert_many(matched).on_conflict_ignore().execute()
+        processed = []
+        for res, photo in Recognise.batch_faces(
+                path,
+                batch,
+                with_tags=save_results,
+                tolerance=tolerance
+        ):
+            if len(res) > 0:
+                matched = [{"photo_id": m.photo_id, "face_id": m.face_id}
+                           for m in res]
+                with Storage.db.atomic():
+                    for pf in matched:
+                        PhotoFace.insert(**pf).on_conflict_ignore().execute()
+                    Photo.update(processed=True).where(Photo.id.in_([r.id for r in batch])).execute()
+            if photo.id not in processed:
+                processed.append(photo.id)
+                progress.update()
         batch = []
 
 
@@ -187,11 +200,10 @@ def cmd_faces(path, tolerance, quiet):
 @click.argument("name")
 def cmd_find(name):
     res = (Photo
-           .select(Photo.full, Photo.folder, fn.STRING_AGG(Face.name, ","))
+           .select(Photo.full, Photo.folder)
            .join(PhotoFace)
            .join(Face)
-           .where(Face.name == name)
-           .group_by(Photo.full, Photo.folder))
+           .where(Face.name == name))
     for rec in res.dicts().iterator():
         print(rec)
 
