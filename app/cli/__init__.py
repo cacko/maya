@@ -1,6 +1,5 @@
 from flask import Blueprint
 from peewee import fn
-
 from app.storage import Storage
 from pathlib import Path
 from app.upload import Uploader
@@ -10,15 +9,14 @@ from app.exif import Exif
 import click
 from app.face.train import Train
 from app.face.recognise import Recognise
-from app.face.models import MatchData
 from tqdm import tqdm
 import face_recognition
 import numpy as np
 from PIL import Image, ImageOps
 from app.storage.models import Face, PhotoFace
 import pickle
-from io import BytesIO
 from hashlib import blake2s
+from app.core.image import show_tagged
 
 bp = Blueprint("cli", __name__)
 
@@ -37,7 +35,8 @@ def post_upload(folder, src, full, thumb):
             longitude=ex.gps.longitude
         ).on_conflict(
             conflict_target=[Photo.full],
-            preserve=[Photo.latitude, Photo.longitude, Photo.folder, Photo.full, Photo.thumb, Photo.timestamp],
+            preserve=[Photo.latitude, Photo.longitude, Photo.folder,
+                      Photo.full, Photo.thumb, Photo.timestamp],
             update={Photo.width: ex.width, Photo.height: ex.height}).execute()
 
 
@@ -49,7 +48,8 @@ def cmd_reprocess(root: str, lst: str):
     path = Path(lst).resolve()
     if not path.exists():
         raise FileNotFoundError
-    it = list(filter(lambda x: x.is_file(), map(lambda p: Path(p.strip()), path.read_text().split("\n"))))
+    it = list(filter(lambda x: x.is_file(), map(
+        lambda p: Path(p.strip()), path.read_text().split("\n"))))
     uploader = Uploader(len(it), callback=post_upload)
     for f in it:
         src = f.absolute()
@@ -102,64 +102,49 @@ def cmd_train():
 @bp.cli.command('self-train')
 @click.argument("path")
 def cmd_self_train(path):
-    matched_data = [MatchData(
-        encodings=pickle.loads(record.encoding),
-        name=record.name,
-        face_id=record.id
-    ) for record in (Face.select())]
-    Recognise.register(matched_data)
+    Recognise.register(Face.get_matched_data())
     path = Path(path)
-    if path.is_file():
-        it = [path]
-    else:
-        it = Local(path)
-    for img_path in tqdm(it):
+    img_iterator = [path] if path.is_file() else Local(path)
+    for img_path in tqdm(img_iterator):
         res = Recognise.faces(img_path, True)
-        if len(res):
-            for m in res:
-                with open(m.src, "rb") as img_fp:
-                    img = Image.open(img_fp)
-                    img.thumbnail(Recognise.SIZE)
-                    upper, right, lower, left = m.location
-                    sample = img.crop((left, upper, right, lower))
-                    h = blake2s(digest_size=20)
-                    h.update(m.src.encode())
-                    sample.save(f"{m.name}_{h.hexdigest()}.jpg", "jpeg")
+        if not len(res):
+            continue
+        for m in res:
+            with open(m.src, "rb") as img_fp:
+                img = Image.open(img_fp)
+                img.thumbnail(Recognise.SIZE)
+                upper, right, lower, left = m.location
+                sample = img.crop((left, upper, right, lower))
+                h = blake2s(digest_size=20)
+                h.update(m.src.encode())
+                sample.save(f"{m.name}_{h.hexdigest()}.jpg", "jpeg")
 
 
 @bp.cli.command('tag')
 @click.argument("path")
 @click.option("-f", "--find-matches", default=None)
-def cmd_tag(path, find_matches):
-    matched_data = [MatchData(
-        encodings=pickle.loads(record.encoding),
-        name=record.name,
-        face_id=record.id
-    ) for record in (Face.select())]
-    Recognise.register(matched_data)
+@click.option("-t", "--tolerance", default=0.5)
+def cmd_tag(path, find_matches, tolerance):
+    Recognise.register(Face.get_matched_data())
     path = Path(path)
-    if path.is_file():
-        it = [path]
-    else:
-        it = Local(path)
+    img_iterator = [path] if path.is_file() else Local(path)
     if find_matches:
-        find_matches = list(map(lambda n: n.strip().lower(), find_matches.split(",")))
+        find_matches = list(
+            map(lambda n: n.strip().lower(), find_matches.split(",")))
         print(f"Matching only {','.join(find_matches)}")
-    for img_path in tqdm(it):
-        res = Recognise.faces(img_path, True, 0.2)
+    for img_path in tqdm(img_iterator):
+        res = Recognise.faces(img_path, True, tolerance=tolerance)
         if len(res):
             names = [r.name for r in res]
             if find_matches and len(list(set(find_matches) & set(names))) == 0:
                 continue
-            buff = BytesIO(res[0].tagged)
-            buff.seek(0)
-            image = Image.open(buff)
-            image.show()
+            show_tagged(res)
 
 
 @bp.cli.command('faces')
 @click.argument("path")
-def cmd_faces(path):
+@click.option("-t", "--tolerance", default=0.5)
+def cmd_faces(path, tolerance):
     known_face_encodings = []
     known_face_names = []
     known_face_id = []
@@ -175,7 +160,8 @@ def cmd_faces(path):
     progress = tqdm(total=total_photos)
     for photo in Photo.select().iterator():
         f = path / photo.full
-        unknown_image = face_recognition.load_image_file(f.resolve().as_posix())
+        unknown_image = face_recognition.load_image_file(
+            f.resolve().as_posix())
         img = Image.fromarray(unknown_image)
         img = ImageOps.pad(img, (500, 500))
         unknown_image = np.asarray(img)
@@ -185,17 +171,21 @@ def cmd_faces(path):
             progress.update()
             if total_photos:
                 continue
-        batch_of_face_locations = face_recognition.batch_face_locations([f[1] for f in frames])
+        batch_of_face_locations = face_recognition.batch_face_locations(
+            [f[1] for f in frames])
         for frame_number_in_batch, face_locations in enumerate(batch_of_face_locations):
             record = frames[frame_number_in_batch][0]
             unknown_image = frames[frame_number_in_batch][1]
             # pil_image = Image.fromarray(unknown_image)
             # draw = ImageDraw.Draw(pil_image)
-            face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
+            face_encodings = face_recognition.face_encodings(
+                unknown_image, face_locations)
             for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-                matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+                matches = face_recognition.compare_faces(
+                    known_face_encodings, face_encoding)
                 # name = "Unknown"
-                face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                face_distances = face_recognition.face_distance(
+                    known_face_encodings, face_encoding)
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     # name = known_face_names[best_match_index]
@@ -229,16 +219,6 @@ def cmd_find(name):
            .where(Face.name == name)
            .group_by(Photo.full, Photo.folder))
     for rec in res.dicts().iterator():
-        print(rec)
-
-
-@bp.cli.command("hash")
-def cmd_hash():
-    res = Face.select()
-    for rec in res.iterator():
-        with Storage.db.atomic():
-            rec.hash = Face.get_hash(pickle.loads(rec.image))
-            rec.save()
         print(rec)
 
 

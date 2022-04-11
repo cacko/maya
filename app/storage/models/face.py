@@ -1,6 +1,8 @@
 from peewee import *
 from app.storage.models import BaseModel
 from hashlib import blake2s
+from app.face.models import MatchData
+import pickle
 
 
 class Face(BaseModel):
@@ -15,3 +17,11 @@ class Face(BaseModel):
         h = blake2s(digest_size=32)
         h.update(data)
         return h.hexdigest()
+
+    @classmethod
+    def get_matched_data(cls):
+        return [MatchData(
+            encodings=pickle.loads(record.encoding),
+            name=record.name,
+            face_id=record.id
+        ) for record in (cls.select())]
