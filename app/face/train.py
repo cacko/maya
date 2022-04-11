@@ -1,11 +1,14 @@
 import glob
 import face_recognition
+import numpy as np
 from flask import Flask, current_app
-import os
+from tqdm import tqdm
 from dataclasses_json import dataclass_json
 from dataclasses import dataclass
 from pathlib import Path
 from app.face.models import FaceData
+from typing import Generator
+from PIL import Image, ImageOps
 
 
 @dataclass_json
@@ -28,8 +31,8 @@ class TrainMeta(type):
         cls.config.path = Path(app.instance_path) / cls.config.path
 
     @property
-    def train(cls) -> list[FaceData]:
-        return cls().do_training()
+    def train(cls) -> Generator[FaceData, None, None]:
+        yield from cls().do_training()
 
     @property
     def data(cls) -> list[FaceData]:
@@ -40,9 +43,11 @@ class Train(object, metaclass=TrainMeta):
     __data = None
 
     def __person_images(self):
-        for root, dirs, files in os.walk(self.config.path.as_posix()):
-            for d in filter(lambda x: x not in [".", ".."], dirs):
-                yield d, glob.glob(f"{root}/{d}/**.jpg")
+        root = self.config.path.absolute()
+        for f in tqdm(glob.glob(f"{root.as_posix()}/**/**.jpg", recursive=True)):
+            fp = Path(f).absolute()
+            fr = fp.relative_to(root)
+            yield fr.parent.name, f
 
     @property
     def train_data(self) -> list[FaceData]:
@@ -51,12 +56,23 @@ class Train(object, metaclass=TrainMeta):
         return self.__data
 
     def do_training(self) -> list[FaceData]:
-        data = []
-        for person, photos in self.__person_images():
-            for photo in photos:
-                face = face_recognition.load_image_file(photo)
-                face_bounding_boxes = face_recognition.face_locations(face)
-                if len(face_bounding_boxes) == 1:
-                    face_enc = face_recognition.face_encodings(face)[0]
-                    data.append(FaceData(name=person, image=face, encodings=face_enc))
-        return data
+        for person, photo in self.__person_images():
+            face = face_recognition.load_image_file(photo)
+            img = Image.fromarray(face)
+            padded = ImageOps.pad(img, (500, 500))
+            face = np.asarray(padded)
+            face_bounding_boxes = face_recognition.face_locations(face, model='cnn')
+            if not len(face_bounding_boxes):
+                face_bounding_boxes = face_recognition.face_locations(face, number_of_times_to_upsample=3, model='cnn')
+            if len(face_bounding_boxes) == 1:
+                face_enc = face_recognition.face_encodings(face)
+                if not len(face_enc):
+                    face_enc = face_recognition.face_encodings(face, num_jitters=5, model='large')
+                if face_enc:
+                    yield FaceData(name=person, image=face, encodings=face_enc[0])
+                else:
+                    p = Path(photo)
+                    p.rename(f"{p}_NO-ENCODINGS")
+            else:
+                p = Path(photo)
+                p.rename(f"{p}_FACES_FOUND_{len(face_bounding_boxes)}")

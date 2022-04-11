@@ -16,7 +16,8 @@ from PIL import Image, ImageOps
 from app.storage.models import Face, PhotoFace
 import pickle
 from hashlib import blake2s
-from app.core.image import show_tagged
+from app.core.image import show_tagged, save_tagged
+from datetime import datetime
 
 bp = Blueprint("cli", __name__)
 
@@ -87,16 +88,28 @@ def cmd_orientation(path):
 
 
 @bp.cli.command('train')
-def cmd_train():
+@click.option("-w", "--overwrite", is_flag=True, default=False)
+def cmd_train(overwrite):
     with Storage.db.atomic():
-        for face_data in Train.data:
-            Face.insert(
-                name=face_data.name,
-                image=pickle.dumps(face_data.image),
-                encoding=pickle.dumps(face_data.encodings),
-                is_trained=True,
-                hash=Face.get_hash(face_data.image)
-            ).on_conflict_ignore().execute()
+        for face_data in Train.train:
+            args = {
+                'name': face_data.name,
+                'image': pickle.dumps(face_data.image),
+                'encoding': pickle.dumps(face_data.encodings),
+                'is_trained': True,
+                'hash': Face.get_hash(face_data.image)
+            }
+            id = None
+            if overwrite:
+                id = Face.insert(**args).on_conflict(
+                    conflict_target=[Face.hash],
+                    preserve=[Face.image, Face.is_trained, Face.name],
+                    update={Face.encoding: pickle.dumps(face_data.encodings)}
+                ).execute()
+            else:
+                id = Face.insert(**args).on_conflict_ignore().execute()
+            if not id:
+                print(face_data)
 
 
 @bp.cli.command('self-train')
@@ -123,11 +136,13 @@ def cmd_self_train(path):
 @bp.cli.command('tag')
 @click.argument("path")
 @click.option("-f", "--find-matches", default=None)
-@click.option("-t", "--tolerance", default=0.5)
-def cmd_tag(path, find_matches, tolerance):
+@click.option("-t", "--tolerance", default=0.4)
+@click.option("-q", "--quiet", is_flag=True, default=False)
+def cmd_tag(path, find_matches, tolerance, quiet):
     Recognise.register(Face.get_matched_data())
     path = Path(path)
     img_iterator = [path] if path.is_file() else Local(path)
+    results_path = Path(".") / f"results-{datetime.now().isoformat()}"
     if find_matches:
         find_matches = list(
             map(lambda n: n.strip().lower(), find_matches.split(",")))
@@ -138,13 +153,18 @@ def cmd_tag(path, find_matches, tolerance):
             names = [r.name for r in res]
             if find_matches and len(list(set(find_matches) & set(names))) == 0:
                 continue
-            show_tagged(res)
+            if quiet:
+                save_tagged(res, results_path)
+            else:
+                show_tagged(res)
+    if quiet:
+        print(f"All done, results are in {results_path.resolve()}")
 
 
 @bp.cli.command('faces')
 @click.argument("path")
-@click.option("-t", "--tolerance", default=0.5)
-def cmd_faces(path, tolerance):
+@click.option("-t", "--tolerance", default=0.4)
+def cmd_faces(path, tolerance, quiet):
     known_face_encodings = []
     known_face_names = []
     known_face_id = []
