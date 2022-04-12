@@ -222,6 +222,8 @@ def cmd_with_faces():
 
 @bp.cli.command("db_init")
 def cmd_db_init():
-    from app.storage.models import Photo, Face, PhotoFace
+    from app.storage.models.photo import Photo
+    from app.storage.models.face import Face
+    from app.storage.models.photo_face import PhotoFace
     with Storage.db as db:
         db.create_tables([Photo, Face, PhotoFace])

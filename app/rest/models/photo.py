@@ -23,7 +23,7 @@ def get_records(
         per_page: int = 100,
         face: str = ""
 ) -> list['Photo']:
-    q = DbPhoto.select(fn.SUM)
+    q = DbPhoto.select()
     if face:
         q = q.join(PhotoFace).join(Face).where(Face.name == face)
     if query:
