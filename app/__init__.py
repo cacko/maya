@@ -41,7 +41,8 @@ def create_app(test_config=None):
 
     Storage.register(app)
     S3.register(app)
-    Train.register(app)
+    if os.environ.get("API_ONLY"):
+        Train.register(app)
 
     from . import cli
     from . import rest
