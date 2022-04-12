@@ -28,7 +28,7 @@ export class ApiService {
     let path = "photos.json";
 
     if (face.length) {
-      path = `face/${face}.json`;
+      path = `face/${face}`;
     }
     return this.httpClient.get(
       `https://${this.API_BASE}/${path}`, {
