@@ -22,7 +22,7 @@ def get_records(
         per_page: int = 100,
         face: str = ""
 ) -> list['Photo']:
-    q = cls.select(fn.SUM)
+    q = Photo.select(fn.SUM)
     if face:
         q = q.join(PhotoFace).join(Face).where(Face.name == face)
     if query:
