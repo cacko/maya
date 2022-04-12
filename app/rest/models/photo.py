@@ -24,9 +24,17 @@ def get_records(
         per_page: int = 100,
         face: str = ""
 ) -> list['Photo']:
-    q = DbPhoto.select()
+    q = DbPhoto.select(
+        DbPhoto,
+        fn.STRING_AGG(Face.name, ",").alias("faces")
+    )
+
     if face:
-        q = q.join(PhotoFace).join(Face).where(Face.name == face)
+        q = q.join(PhotoFace).join(Face)
+        q = q.where(Face.name == face)
+    else:
+        q = q.join(PhotoFace, JOIN.LEFT_OUTER).join(Face, JOIN.LEFT_OUTER)
+
     if query:
         q = q.where(
             (DbPhoto.full ** f"%{query}%")
@@ -34,13 +42,17 @@ def get_records(
     if folder:
         q = q.where(DbPhoto.folder == folder)
 
+    q = q.group_by(DbPhoto.id)
+
     q = q.order_by(DbPhoto.timestamp.desc()).paginate(page, per_page)
-    return list(q.dicts())
+    result = list(q.dicts())
+    return result
 
 
 @dataclass_json(undefined=Undefined.EXCLUDE)
 @dataclass
 class Photo:
+    id: int
     folder: str
     full: str
     thumb: str
@@ -49,14 +61,16 @@ class Photo:
     height: int
     latitude: Optional[float]
     longitude: Optional[float]
-    # faces: Optional[list[str]]
+    faces: Optional[str]
 
     @classmethod
     def records(cls, request, **kwargs) -> list[dict]:
         records = get_records(
             page=get_page(request),
             query=request.args.get("filter"),
-            folder=kwargs.get("folder", request.args.get("folder"))
+            folder=kwargs.get("folder", request.args.get("folder")),
+            face=kwargs.get("face"),
+
         )
         for rec in records:
             rec["timestamp"] = rec.get("timestamp").timestamp()

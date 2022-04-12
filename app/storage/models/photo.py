@@ -13,6 +13,5 @@ class Photo(BaseModel):
     latitude = FloatField(null=True)
     longitude = FloatField(null=True)
     processed = BooleanField(default=False)
-    faces = ManyToManyField(Face, backref='photos')
 
 
