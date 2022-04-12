@@ -2,6 +2,7 @@ from dataclasses_json import dataclass_json, Undefined
 from dataclasses import dataclass
 from typing import Optional
 from datetime import datetime
+from app.storage.models.photo import Photo as DbPhoto
 from app.storage.models.photo_face import PhotoFace
 from app.storage.models.face import Face
 from peewee import *
@@ -22,17 +23,17 @@ def get_records(
         per_page: int = 100,
         face: str = ""
 ) -> list['Photo']:
-    q = Photo.select(fn.SUM)
+    q = DbPhoto.select(fn.SUM)
     if face:
         q = q.join(PhotoFace).join(Face).where(Face.name == face)
     if query:
         q = q.where(
-            (Photo.full ** f"%{query}%")
+            (DbPhoto.full ** f"%{query}%")
         )
     if folder:
-        q = q.where(Photo.folder == folder)
+        q = q.where(DbPhoto.folder == folder)
 
-    q = q.order_by(Photo.timestamp.desc()).paginate(page, per_page)
+    q = q.order_by(DbPhoto.timestamp.desc()).paginate(page, per_page)
     return list(q.dicts())
 
 
