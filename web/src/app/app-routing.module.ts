@@ -8,6 +8,11 @@ const routes: Routes = [
     path: "photo/:id",
     component: FullViewComponent,
     pathMatch: "full"
+  },
+  {
+    path: "face/:id",
+    component: AppComponent,
+    pathMatch: "full"
   }
 ];
 

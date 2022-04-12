@@ -6,7 +6,6 @@ from app.storage.models import Photo
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
-from multiprocessing import Pool
 from typing import Generator
 
 

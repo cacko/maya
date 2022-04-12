@@ -16,6 +16,7 @@ from app.core.image import show_tagged, save_tagged
 from datetime import datetime
 from app.core.progress import Progress
 from tqdm import tqdm
+from peewee import fn
 
 bp = Blueprint("cli", __name__)
 
@@ -204,6 +205,16 @@ def cmd_find(name):
            .join(PhotoFace)
            .join(Face)
            .where(Face.name == name))
+    for rec in res.dicts().iterator():
+        print(rec)
+
+
+@bp.cli.command("with-faces")
+def cmd_with_faces():
+    res = (Photo
+           .select(Photo.full, Photo.folder, fn.STRING_AGG(Face.name, ","))
+           .join(PhotoFace)
+           .join(Face))
     for rec in res.dicts().iterator():
         print(rec)
 
