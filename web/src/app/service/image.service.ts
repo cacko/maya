@@ -15,6 +15,7 @@ export class ImageService {
 
   public folder: string = "";
   public filter: string = "";
+  public face: string = "";
   public page: number = 0;
 
   private findId: string = "";
@@ -49,6 +50,13 @@ export class ImageService {
     this.filter = filter;
   }
 
+  setFace(face: string = "") {
+    if (this.face && this.face != face) {
+      this.clear();
+    }
+    this.face = face;
+  }
+
   setFolder(folder: string = "") {
     if (this.folder && this.folder != folder) {
       this.clear();
@@ -81,7 +89,7 @@ export class ImageService {
   load(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.api
-        .photos(++this.page, this.filter, this.folder)
+        .photos(++this.page, this.filter, this.folder, this.face)
         .subscribe({
           next: (data) => {
             const photos = data as PhotoEntity[];

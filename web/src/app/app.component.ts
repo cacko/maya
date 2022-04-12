@@ -8,16 +8,16 @@ import {
   ViewChild,
   ViewContainerRef
 } from "@angular/core";
-import { AuthService } from "./service/auth.service";
-import { SwUpdate, VersionReadyEvent } from "@angular/service-worker";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { filter, map, Subscription, timer } from "rxjs";
-import { ImageService } from "./service/image.service";
-import { ActivatedRoute, Router } from "@angular/router";
-import { ViewportScroller } from "@angular/common";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
-import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
-import { TemplatePortal } from "@angular/cdk/portal";
+import {AuthService} from "./service/auth.service";
+import {SwUpdate, VersionReadyEvent} from "@angular/service-worker";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {filter, map, Subscription, timer} from "rxjs";
+import {ImageService} from "./service/image.service";
+import {ActivatedRoute, Router} from "@angular/router";
+import {ViewportScroller} from "@angular/common";
+import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
+import {Overlay, OverlayConfig, OverlayRef} from "@angular/cdk/overlay";
+import {TemplatePortal} from "@angular/cdk/portal";
 
 
 enum SearchOriginator {
@@ -147,6 +147,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   };
 
   async ngOnInit() {
+    this.route.params.subscribe((params) => {
+      const face = params["id"] || "";
+      this.imageService.setFace(face);
+
+    });
+
     this.form.get("query")?.valueChanges.subscribe((value: string) => {
       if (this.keyboardInterval && !this.keyboardInterval.closed) {
         this.keyboardInterval.unsubscribe();
@@ -171,9 +177,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.keywords = this.query.split(" ");
     this.imageService.setFilter(filter);
     if (filter.length) {
-      await this.router.navigate([""], { queryParams: { filter }, replaceUrl: true });
+      await this.router.navigate([""], {queryParams: {filter}, replaceUrl: true});
     } else {
-      await this.router.navigate([""], { replaceUrl: true });
+      await this.router.navigate([""], {replaceUrl: true});
     }
     // this.form.get("query")?.patchValue(filter);
     this.imageService.startLoader();

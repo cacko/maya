@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import {Injectable} from "@angular/core";
+import {HttpClient} from "@angular/common/http";
 
 
 @Injectable({
@@ -23,10 +23,15 @@ export class ApiService {
       `https://${this.API_BASE}/folders.json`);
   }
 
-  photos(page = 1, filter: string = "", folder: string = "") {
+  photos(page = 1, filter: string = "", folder: string = "", face: string = "") {
     this.page = Math.max(1, page);
+    let path = "photo.json";
+
+    if (face.length) {
+      path = `face/${face}.json`;
+    }
     return this.httpClient.get(
-      `https://${this.API_BASE}/photos.json`, {
+      `https://${this.API_BASE}/${path}`, {
         params: {
           filter,
           folder,
