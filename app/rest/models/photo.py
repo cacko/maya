@@ -4,7 +4,7 @@ from typing import Optional
 from datetime import datetime
 from app.storage.models.photo_face import PhotoFace
 from app.storage.models.face import Face
-from peewee import fn
+from peewee import *
 
 
 def get_page(rq) -> int:
@@ -16,7 +16,6 @@ def get_page(rq) -> int:
 
 
 def get_records(
-        cls,
         page: int = 1,
         query: str = None,
         folder: str = None,
@@ -28,12 +27,12 @@ def get_records(
         q = q.join(PhotoFace).join(Face).where(Face.name == face)
     if query:
         q = q.where(
-            (cls.full ** f"%{query}%")
+            (Photo.full ** f"%{query}%")
         )
     if folder:
-        q = q.where(cls.folder == folder)
+        q = q.where(Photo.folder == folder)
 
-    q = q.order_by(cls.timestamp.desc()).paginate(page, per_page)
+    q = q.order_by(Photo.timestamp.desc()).paginate(page, per_page)
     return list(q.dicts())
 
 
