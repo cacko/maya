@@ -25,7 +25,7 @@ export class ApiService {
 
   photos(page = 1, filter: string = "", folder: string = "", face: string = "") {
     this.page = Math.max(1, page);
-    let path = "photo.json";
+    let path = "photos.json";
 
     if (face.length) {
       path = `face/${face}.json`;
