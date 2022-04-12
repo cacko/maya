@@ -2,14 +2,15 @@ from flask import Blueprint
 from app.storage import Storage
 from pathlib import Path
 from app.upload import Uploader
-from app.storage.models import Photo
+from app.storage.models.photo import  Photo
 from app.local import Local
 from app.exif import Exif
 import click
 from app.face.train import Train
 from app.face.recognise import Recognise
 from PIL import Image
-from app.storage.models import Face, PhotoFace
+from app.storage.models.face import Face
+from app.storage.models.photo_face import PhotoFace
 import pickle
 from hashlib import blake2s
 from app.core.image import show_tagged, save_tagged

@@ -2,7 +2,7 @@ import face_recognition
 import numpy as np
 from app.face.models import MatchData, FaceMatch
 from pathlib import Path
-from app.storage.models import Photo
+from app.storage.models.photo import Photo
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 from multiprocessing.pool import ThreadPool

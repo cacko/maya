@@ -1,5 +1,5 @@
 from app.rest.models import Aggregated
-from app.storage.models import Photo
+from app.storage.models.photo import Photo
 from peewee import fn
 from dataclasses_json import dataclass_json
 from dataclasses import dataclass
