@@ -5,17 +5,17 @@ import { AppComponent } from "./app.component";
 
 const routes: Routes = [
   {
-    path: "",
+    path: '',
     component: AppComponent,
     pathMatch: "full"
   },
   {
-    path: "photo/:id",
+    path: 'photo/:id',
     component: FullViewComponent,
     pathMatch: "full"
   },
   {
-    path: "face/:id",
+    path: 'face/:id',
     component: AppComponent,
     pathMatch: "full"
   }

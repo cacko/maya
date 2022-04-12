@@ -108,22 +108,20 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.imageService.selected.subscribe((selected) => {
       if (!selected) {
         this.router.navigate([""]).then(() => {
-
+          this.imageService.endLoader();
         });
       } else {
-        this.router.navigate(["photo", selected]).then(() => {
-
-        });
+        this.router.navigate(["photo", selected]).then(() => {});
       }
       setTimeout(() => {
         const oldId = this.selected;
         this.selected = selected;
         this.isHorizontal = !!selected;
-        // if (!selected && oldId) {
-        //   setTimeout(() => {
-        //     this.viewportScroller.scrollToAnchor(this.selected + "");
-        //   }, 0);
-        // }
+        if (!selected && oldId) {
+          setTimeout(() => {
+            this.viewportScroller.scrollToAnchor(oldId + "");
+          }, 0);
+        }
       }, 0);
     });
   }
@@ -150,7 +148,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.route.params.subscribe((params) => {
       const face = params["id"] || "";
       this.imageService.setFace(face);
-
     });
 
     this.form.get("query")?.valueChanges.subscribe((value: string) => {
