@@ -1,5 +1,6 @@
-from dataclasses_json import dataclass_json, Undefined
-from dataclasses import dataclass
+from dataclasses_json import dataclass_json, Undefined, config
+from marshmallow import fields
+from dataclasses import dataclass, field
 from typing import Optional
 from datetime import datetime
 from app.storage.models.photo import Photo as DbPhoto
@@ -48,7 +49,7 @@ class Photo:
     height: int
     latitude: Optional[float]
     longitude: Optional[float]
-    faces: Optional[list[str]]
+    # faces: Optional[list[str]]
 
     @classmethod
     def records(cls, request, **kwargs) -> list[dict]:
@@ -57,5 +58,7 @@ class Photo:
             query=request.args.get("filter"),
             folder=kwargs.get("folder", request.args.get("folder"))
         )
+        for rec in records:
+            rec["timestamp"] = rec.get("timestamp").timestamp()
         models = cls.schema().load(records, many=True)
         return cls.schema().dump(models, many=True)
