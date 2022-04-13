@@ -69,7 +69,8 @@ class Train(object, metaclass=TrainMeta):
                 if not len(face_enc):
                     face_enc = face_recognition.face_encodings(face, num_jitters=5, model='large')
                 if face_enc:
-                    yield FaceData(name=person, image=face, encodings=face_enc[0])
+                    p = Path(photo)
+                    yield FaceData(name=person, image=face, encodings=face_enc[0], is_avatar=(p.stem == "000"))
                 else:
                     p = Path(photo)
                     p.rename(f"{p}_NO-ENCODINGS")

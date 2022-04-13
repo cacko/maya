@@ -10,6 +10,7 @@ class FaceData:
     image: np.ndarray
     encodings: list[np.ndarray]
     name: str
+    is_avatar: Optional[bool] = False
 
 
 @dataclass_json

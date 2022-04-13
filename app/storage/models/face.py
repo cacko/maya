@@ -12,6 +12,7 @@ class Face(BaseModel):
     encoding = BlobField()
     hash = CharField(unique=True, max_length=64)
     is_trained = BooleanField(default=False)
+    is_avatar = BooleanField(default=False)
 
     @classmethod
     def get_hash(cls, data) -> str:

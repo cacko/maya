@@ -15,7 +15,7 @@ class RecogniseMeta(type):
 
     SIZE = (300, 300)
     PAD_SIZE = (300, 300)
-    POOL_SIZE = 10
+    POOL_SIZE = 50
 
     def __call__(cls, *args, **kwargs):
         if not cls._instance:

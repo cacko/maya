@@ -2,7 +2,7 @@ from flask import Blueprint
 from app.storage import Storage
 from pathlib import Path
 from app.upload import Uploader
-from app.storage.models.photo import  Photo
+from app.storage.models.photo import Photo
 from app.local import Local
 from app.exif import Exif
 import click
@@ -18,6 +18,7 @@ from datetime import datetime
 from app.core.progress import Progress
 from tqdm import tqdm
 from peewee import fn
+from app.face.models import FaceMatch
 
 bp = Blueprint("cli", __name__)
 
@@ -97,7 +98,8 @@ def cmd_train(overwrite):
                 'image': pickle.dumps(face_data.image),
                 'encoding': pickle.dumps(face_data.encodings),
                 'is_trained': True,
-                'hash': Face.get_hash(face_data.image)
+                'hash': Face.get_hash(face_data.image),
+                'is_avatar':  face_data.is_avatar
             }
             if overwrite:
                 Face.insert(**args).on_conflict(
@@ -186,7 +188,7 @@ def cmd_faces(path, tolerance=0.4, save_results=False, batch_size=10, overwrite=
                 tolerance=tolerance
         ):
             if len(res) > 0:
-                matched = [{"photo_id": m.photo_id, "face_id": m.face_id}
+                matched = [{"photo_id": m.photo_id, "face_id": m.face_id, "location": ",".join(map(str, m.location))}
                            for m in res]
                 with Storage.db.atomic():
                     for pf in matched:

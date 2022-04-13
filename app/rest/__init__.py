@@ -51,7 +51,6 @@ def face(name):
     return jsonify(RestPhoto.records(request, face=name))
 
 
-@do_cache()
 @bp.route('/faces.json')
 def faces():
     return jsonify(RestFace.records())
