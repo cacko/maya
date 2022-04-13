@@ -15,7 +15,7 @@ const routes: Routes = [
     pathMatch: "full"
   },
   {
-    path: 'face/:id',
+    path: 'face/:face',
     component: AppComponent,
     pathMatch: "full"
   }

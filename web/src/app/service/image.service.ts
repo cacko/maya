@@ -51,9 +51,7 @@ export class ImageService {
   }
 
   setFace(face: string = "") {
-    if (this.face && this.face != face) {
-      this.clear();
-    }
+    this.clear();
     this.face = face;
   }
 

@@ -90,14 +90,14 @@ export class AppComponent implements OnInit, AfterViewInit {
           );
       });
     }
-    this.auth.isLogged.subscribe(res => {
-      if (res) {
-        this.loading = true;
-        this.imageService.load().then(() => {
-          this.loading = false;
-        });
-      }
-    });
+    // this.auth.isLogged.subscribe(res => {
+    //   if (res) {
+    //     this.loading = true;
+    //     this.imageService.load().then(() => {
+    //       this.loading = false;
+    //     });
+    //   }
+    // });
     this.form = this.builder.group({
       query: new FormControl()
     });
@@ -151,7 +151,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   async ngOnInit() {
     this.route.params.subscribe((params) => {
-      const face = params["id"] || "";
+      const face = params["face"] || "";
         setTimeout(() => {
           this.imageService.setFace(face);
           this.imageService.load().then(() => {
