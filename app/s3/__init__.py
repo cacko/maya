@@ -16,6 +16,7 @@ class S3Config:
     secret_access_key: str
     s3_region: str
     storage_bucket_name: str
+    directory: str
 
 
 @dataclass_json
@@ -24,10 +25,6 @@ class S3Upload:
     src: str
     dst: str
     skip_upload: bool = False
-
-
-def src_key(dst):
-    return f"maya/{dst}"
 
 
 class S3Meta(type):
@@ -45,7 +42,10 @@ class S3Meta(type):
     def thumb(cls, item: S3Upload) -> tuple[str, str, str, str]:
         thumb = cls().upload_thumb(item.src, item.dst, item.skip_upload)
         folder = Path(item.dst).parent.as_posix()
-        return folder, item.src, src_key(item.dst), thumb
+        return folder, item.src, cls.src_key(item.dst), thumb
+
+    def src_key(cls, dst):
+        return f"{cls.config.directory}/{dst}"
 
 
 class S3(object, metaclass=S3Meta):
@@ -63,7 +63,7 @@ class S3(object, metaclass=S3Meta):
         self._config = config
 
     def upload_thumb(self, src, dst, skip_upload=False):
-        dst_thumb = Path(src_key(dst))
+        dst_thumb = Path(self.__class__.src_key(dst))
         dst_thumb = dst_thumb.parent / f"{dst_thumb.stem}_{'x'.join(map(str, self.THUMB_SIZE))}.webp"
         dst_thumb = dst_thumb.as_posix()
         if skip_upload:
@@ -87,6 +87,7 @@ class S3(object, metaclass=S3Meta):
         folder = Path(dst).parent.as_posix()
         if not skip_upload:
             bucket = self._config.storage_bucket_name
-            self._client.upload_file(src, bucket, src_key(dst), ExtraArgs={'ContentType': mime, 'ACL': "public-read"})
+            self._client.upload_file(src, bucket, self.__class__.src_key(dst),
+                                     ExtraArgs={'ContentType': mime, 'ACL': "public-read"})
         dst_thumb = self.upload_thumb(src, dst, skip_upload)
-        return folder, src, src_key(dst), dst_thumb
+        return folder, src, self.__class__.src_key(dst), dst_thumb
