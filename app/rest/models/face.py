@@ -10,7 +10,8 @@ from io import BytesIO
 
 
 def get_records() -> list['Face']:
-    subquery = DbFace.select(fn.MIN(DbFace.id).alias("face_id"), DbFace.name).group_by(DbFace.name).alias("subquery")
+    subquery = DbFace.select(fn.MIN(DbFace.id).alias("face_id"), DbFace.name).where(
+        ~(DbFace.name << ["lukas", "faisal", "neil", "cummins"])).group_by(DbFace.name).alias("subquery")
 
     q = DbFace.select().join(subquery, on=(subquery.c.face_id == DbFace.id))
 
@@ -31,7 +32,7 @@ class Face:
         for rec in records:
             img = Image.fromarray(pickle.loads(rec["image"]))
             img.thumbnail((100, 100))
-            buff2= BytesIO()
+            buff2 = BytesIO()
             img.save(buff2, "WEBP")
             buff2.seek(0)
             rec["image"] = b64encode(buff2.read())
