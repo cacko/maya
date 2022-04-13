@@ -108,7 +108,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
     this.imageService.selected.subscribe((selected) => {
       if (!selected) {
-        this.router.navigate([""]).then(() => {
+        let commands  = [""];
+        if (this.imageService.face) {
+          commands = ["face", this.imageService.face];
+        }
+        this.router.navigate(commands).then(() => {
           this.imageService.endLoader();
         });
       } else {
