@@ -181,6 +181,10 @@ body {
   &::-webkit-scrollbar {
     display: none;
   }
+
+  &[expanded] {
+    overflow-y: hidden;
+  }
 }
 
 app-root {

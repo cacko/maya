@@ -108,6 +108,12 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.router.navigate(["photo", selected]).then(() => {});
       }
       setTimeout(() => {
+        if (selected) {
+          document.body.setAttribute("expanded", selected);
+        } else {
+          document.body.removeAttribute("expanded");
+
+        }
         const oldId = this.selected;
         this.selected = selected;
         this.isHorizontal = !!selected;
