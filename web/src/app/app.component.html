@@ -2,6 +2,7 @@
 
 <div class="root" [attr.loading]="loading || null">
 
+
   <router-outlet></router-outlet>
 
   <div class="container" infiniteScroll
@@ -37,6 +38,11 @@
       <mat-icon>search</mat-icon>
     </button>
   </div>
+
+  <div class="faces">
+    <app-faces *ngIf="!loading"></app-faces>
+  </div>
+
 
   <ng-template #searchForm>
     <form [formGroup]="form">

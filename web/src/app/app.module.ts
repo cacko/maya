@@ -25,6 +25,8 @@ import { MatInputModule } from "@angular/material/input";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatChipsModule } from "@angular/material/chips";
 import { FolderComponent } from './component/folder/folder.component';
+import { FaceComponent } from './component/face/face.component';
+import { FacesComponent } from './component/faces/faces.component';
 
 const MATERIALS = [
   MatProgressBarModule,
@@ -43,7 +45,9 @@ const MATERIALS = [
     CardComponent,
     LoaderComponent,
     FullViewComponent,
-    FolderComponent
+    FolderComponent,
+    FaceComponent,
+    FacesComponent
   ],
   imports: [
     BrowserModule,

@@ -18,6 +18,7 @@ import {ViewportScroller} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {Overlay, OverlayConfig, OverlayRef} from "@angular/cdk/overlay";
 import {TemplatePortal} from "@angular/cdk/portal";
+import {FaceService} from "./service/face.service";
 
 
 enum SearchOriginator {
@@ -148,6 +149,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.route.params.subscribe((params) => {
       const face = params["id"] || "";
       this.imageService.setFace(face);
+      if (!this.loading) {
+        this.imageService.load();
+      }
     });
 
     this.form.get("query")?.valueChanges.subscribe((value: string) => {

@@ -9,6 +9,28 @@
       opacity: 0.7;
     }
 
+    .faces {
+      position: fixed;
+      display: flex;
+      top: 1em;
+      left: 0;
+      justify-content: center;
+      width: 100%;
+      z-index: 5;
+
+      app-faces {
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 1em;
+        opacity: 0.2;
+        padding: 0.5em;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+
+
     .content {
       height: 100vh;
       overflow: auto;
@@ -43,6 +65,7 @@
         &::-webkit-scrollbar {
           display: none;
         }
+
         .card {
           width: 50px;
           flex-shrink: 0;

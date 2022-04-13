@@ -7,10 +7,11 @@ export interface PhotoEntity {
   height: number;
   latitude: number;
   longitude: number;
+  faces?: string;
 }
 
 
-import { Md5 } from "ts-md5/dist/md5";
+import {Md5} from "ts-md5/dist/md5";
 
 export class Photo {
 
@@ -35,6 +36,13 @@ export class Photo {
 
   public get aspect(): string {
     return this.data.width > this.data.height ? 'maxHeight' : 'maxWidth';
+  }
+
+  public get faces(): string[] {
+    if (this.data.faces) {
+      return this.data.faces.split(",").map((n) => n.trim());
+    }
+    return [];
   }
 
   public get style(): string {

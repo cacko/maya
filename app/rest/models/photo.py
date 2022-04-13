@@ -69,8 +69,7 @@ class Photo:
             page=get_page(request),
             query=request.args.get("filter"),
             folder=kwargs.get("folder", request.args.get("folder")),
-            face=kwargs.get("face"),
-
+            face=kwargs.get("face", request.args.get("face")),
         )
         for rec in records:
             rec["timestamp"] = rec.get("timestamp").timestamp()
