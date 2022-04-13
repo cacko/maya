@@ -1,6 +1,6 @@
 <app-loader *ngIf="loading"></app-loader>
 
-<div class="root" [attr.loading]="loading || null">
+<div class="root" [attr.loading]="loading || null" [attr.expanded]="selected || null">
 
 
   <router-outlet></router-outlet>
