@@ -8,7 +8,6 @@ import {
   ViewChild,
   ViewContainerRef
 } from "@angular/core";
-import {AuthService} from "./service/auth.service";
 import {SwUpdate, VersionReadyEvent} from "@angular/service-worker";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {filter, map, Subscription, timer} from "rxjs";
@@ -18,7 +17,6 @@ import {ViewportScroller} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {Overlay, OverlayConfig, OverlayRef} from "@angular/cdk/overlay";
 import {TemplatePortal} from "@angular/cdk/portal";
-import {FaceService} from "./service/face.service";
 
 
 enum SearchOriginator {
@@ -60,7 +58,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild("searchForm") tpl: TemplateRef<any> | undefined;
 
   constructor(
-    public auth: AuthService,
     public imageService: ImageService,
     private swUpdate: SwUpdate,
     private snackBar: MatSnackBar,
@@ -90,14 +87,6 @@ export class AppComponent implements OnInit, AfterViewInit {
           );
       });
     }
-    // this.auth.isLogged.subscribe(res => {
-    //   if (res) {
-    //     this.loading = true;
-    //     this.imageService.load().then(() => {
-    //       this.loading = false;
-    //     });
-    //   }
-    // });
     this.form = this.builder.group({
       query: new FormControl()
     });

@@ -3,7 +3,7 @@
 
     display: flex;
     flex-direction: column;
-
+    overflow-y: hidden;
 
     &[loading] {
       opacity: 0.7;
@@ -43,7 +43,7 @@
       grid-auto-rows: 100px;
       grid-auto-flow: dense;
       padding: 0;
-      z-index: 1;
+      z-index: 6;
       overflow-x: hidden;
       width: 100%;
 

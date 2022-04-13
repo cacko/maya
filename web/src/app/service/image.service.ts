@@ -1,8 +1,10 @@
-import { Injectable } from "@angular/core";
-import { Photo, PhotoEntity } from "../entity/photo";
-import { ApiService } from "./api.service";
-import { Subject } from "rxjs";
-import { Folder, FolderEntity } from "../entity/folder";
+import {Injectable} from "@angular/core";
+import {Photo, PhotoEntity} from "../entity/photo";
+import {ApiService} from "./api.service";
+import {Subject} from "rxjs";
+import {Folder, FolderEntity} from "../entity/folder";
+import {AuthService} from "./auth.service";
+import {find} from 'lodash-es';
 
 @Injectable({
   providedIn: "root"
@@ -20,6 +22,13 @@ export class ImageService {
 
   private findId: string = "";
 
+  private queue: Promise<boolean>[] = [];
+
+  private isLoggedSubject = new Subject<boolean>();
+  private isLoggedObserver = this.isLoggedSubject.asObservable();
+
+  private isLogged: boolean = false;
+
   private loadingSubject = new Subject<boolean>();
   loading = this.loadingSubject.asObservable();
 
@@ -27,9 +36,17 @@ export class ImageService {
   selected = this.selectedSubject.asObservable();
 
   constructor(
-    private api: ApiService
+    private api: ApiService,
+    public auth: AuthService,
   ) {
+    this.auth.isLogged.subscribe(res => {
+      if (res) {
+        this.isLoggedSubject.next(true);
+        this.isLogged = true;
+      }
+    });
   }
+
 
   startLoader() {
     this.loadingSubject.next(true);
@@ -62,66 +79,87 @@ export class ImageService {
     this.folder = folder;
   }
 
+  private checkAuth(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (this.isLogged) {
+        return resolve(true);
+      }
+      this.isLoggedObserver.subscribe(() => {
+        resolve(true);
+      })
+    })
+  }
+
   loadFolders(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this.api
-        .folders()
-        .subscribe({
-          next: (data) => {
-            const folders = data as FolderEntity[];
-            if (!folders.length) {
-              return reject("nothing to load");
+      this.checkAuth().then(() => {
+        this.api
+          .folders()
+          .subscribe({
+            next: (data) => {
+              const folders = data as FolderEntity[];
+              if (!folders.length) {
+                return reject("nothing to load");
+              }
+              folders.forEach(data => {
+                const folder = new Folder(data);
+                this.folders.push(folder);
+              });
+              resolve(true);
+            }, error: (err) => {
+              reject(err);
             }
-            folders.forEach(data => {
-              const folder = new Folder(data);
-              this.folders.push(folder);
-            });
-            resolve(true);
-          }, error: (err) => {
-            reject(err);
-          }
-        });
+          });
+      });
+
     });
   }
 
+
   load(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this.api
-        .photos(++this.page, this.filter, this.folder, this.face)
-        .subscribe({
-          next: (data) => {
-            const photos = data as PhotoEntity[];
-            if (!photos.length) {
-              return reject("nothing to load");
+      this.checkAuth().then(() => {
+        this.api
+          .photos(++this.page, this.filter, this.folder, this.face)
+          .subscribe({
+            next: (data) => {
+              const photos = data as PhotoEntity[];
+              if (!photos.length) {
+                return reject("nothing to load");
+              }
+              photos.forEach(photo => {
+                const image = new Photo(photo);
+                this.ids.push(image.id);
+                this.images.push((image));
+              });
+              resolve(true);
+            }, error: (err) => {
+              reject(err);
             }
-            photos.forEach(photo => {
-              const image = new Photo(photo);
-              this.ids.push(image.id);
-              this.images.push((image));
-            });
-            resolve(true);
-          }, error: (err) => {
-            reject(err);
-          }
-        });
+          });
+      });
+
     });
   }
 
 
   byId(id: string): Promise<Photo | null | undefined> {
     return new Promise((resolve) => {
-      let res = null;
-      if (this.ids.includes(id)) {
-        res = this.images.find(i => i.id == id);
-        return resolve(res);
-      }
-      (async () => {
-        let res = null;
-        while (res === null) {
-          res = await this.loadId(id).catch(() => (res = undefined));
+      console.log("by id", id)
+      this.checkAuth().then(() => {
+        let res = find(this.images, {id});
+        if (res) {
+          return resolve(res);
         }
-        return resolve(res);
-      })();
+        (async () => {
+          let res = null;
+          while (res === null) {
+            res = await this.loadId(id).catch(() => (res = undefined));
+          }
+          return resolve(res);
+        })();
+      });
+
     });
   }
 
