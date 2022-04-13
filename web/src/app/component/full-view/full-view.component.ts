@@ -5,7 +5,6 @@ import { Photo } from "../../entity/photo";
 import { ImageService } from "../../service/image.service";
 import {FaceEntity} from "../../entity/face";
 import {FaceService} from "../../service/face.service";
-
 @Component({
   selector: "app-full-view",
   templateUrl: "./full-view.component.html",

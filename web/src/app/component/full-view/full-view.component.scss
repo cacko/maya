@@ -23,9 +23,13 @@
         border-radius: 50%;
       }
 
-      &:hover {
-        cursor: pointer;
-        opacity: 1;
+
+      @media(hover: hover) {
+        &:hover {
+          cursor: pointer;
+          opacity: 1;
+        }
+
       }
     }
   }
@@ -41,16 +45,21 @@
 
     > div {
       height: 100%;
-      opacity: 0.5;
       display: flex;
+      opacity: 1;
       align-items: center;
       padding: 1em;
 
-      &:hover {
-        opacity: 1;
-        background-color: rgba(0, 0, 0, 0.2);
-        transform: matrix(1.5, 0, 0, 1.5, 0, 0);
-        cursor: pointer;
+
+      @media(hover: hover) {
+        opacity: 0.5;
+        &:hover {
+          opacity: 1;
+          background-color: rgba(0, 0, 0, 0.2);
+          transform: matrix(1.5, 0, 0, 1.5, 0, 0);
+          cursor: pointer;
+
+        }
       }
 
     }
@@ -103,8 +112,6 @@
       }
 
     }
-
-
 
 
   }
