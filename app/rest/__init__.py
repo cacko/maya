@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, Response
 from app.rest.models.photo import Photo as RestPhoto
+from app.rest.models.face import Face as RestFace
 from hashlib import blake2s
 from functools import wraps
 from app.rest.models.folder import Folders
@@ -48,4 +49,10 @@ def get_folder(folder):
 @bp.route('/face/<name>.json')
 def face(name):
     return jsonify(RestPhoto.records(request, face=name))
+
+
+@do_cache()
+@bp.route('/faces.json')
+def faces():
+    return jsonify(RestFace.records())
 
