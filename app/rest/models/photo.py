@@ -26,7 +26,8 @@ def get_records(
 ) -> list['Photo']:
     q = DbPhoto.select(
         DbPhoto,
-        fn.STRING_AGG(Face.name, ",").alias("faces")
+        fn.STRING_AGG(Face.name, ",").alias("faces"),
+        fn.STRING_AGG(PhotoFace.location, "|").alias("locations")
     )
 
     if face:
@@ -62,6 +63,7 @@ class Photo:
     latitude: Optional[float]
     longitude: Optional[float]
     faces: Optional[str]
+    locations: Optional[str]
 
     @classmethod
     def records(cls, request, **kwargs) -> list[dict]:
