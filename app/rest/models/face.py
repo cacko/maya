@@ -11,7 +11,7 @@ from io import BytesIO
 
 def get_records() -> list['Face']:
     subquery = DbFace.select(fn.MIN(DbFace.id).alias("face_id"), DbFace.name).where(
-        ~(DbFace.name << ["lukas", "faisal", "neil", "cummins"])).group_by(DbFace.name).alias("subquery")
+        ~(DbFace.name << ["lukas", "faisal", "neil", "cummins", "bart"])).group_by(DbFace.name).alias("subquery")
 
     q = DbFace.select().join(subquery, on=(subquery.c.face_id == DbFace.id))
 
