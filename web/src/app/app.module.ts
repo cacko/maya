@@ -27,6 +27,7 @@ import { MatChipsModule } from "@angular/material/chips";
 import { FolderComponent } from './component/folder/folder.component';
 import { FaceComponent } from './component/face/face.component';
 import { FacesComponent } from './component/faces/faces.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 const MATERIALS = [
   MatProgressBarModule,
@@ -36,7 +37,8 @@ const MATERIALS = [
   MatIconModule,
   MatInputModule,
   ReactiveFormsModule,
-  MatChipsModule
+  MatChipsModule,
+  MatTooltipModule
 ];
 
 @NgModule({

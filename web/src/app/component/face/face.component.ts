@@ -1,6 +1,8 @@
 import {Component, Input} from '@angular/core';
 import {FaceEntity} from "../../entity/face";
 import {ImageService} from "../../service/image.service";
+import {capitalize} from "lodash-es";
+
 
 @Component({
   selector: 'app-face',
@@ -21,6 +23,10 @@ export class FaceComponent {
     return {
       'background-image': `url("data:image/webp;base64,${this.face?.image}")`,
     };
+  }
+
+  get tooltip(): string {
+    return capitalize(this.face?.name);
   }
 
   get link() {
