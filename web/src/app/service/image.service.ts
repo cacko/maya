@@ -145,7 +145,6 @@ export class ImageService {
 
   byId(id: string): Promise<Photo | null | undefined> {
     return new Promise((resolve) => {
-      console.log("by id", id)
       this.checkAuth().then(() => {
         let res = find(this.images, {id});
         if (res) {
