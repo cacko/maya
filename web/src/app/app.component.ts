@@ -148,10 +148,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   async ngOnInit() {
     this.route.params.subscribe((params) => {
       const face = params["id"] || "";
-      this.imageService.setFace(face);
-      if (!this.loading) {
-        this.imageService.load();
-      }
+        setTimeout(() => {
+          this.imageService.setFace(face);
+          this.imageService.load().then(() => {
+            this.imageService.endLoader();
+          })
+        }, 0);
     });
 
     this.form.get("query")?.valueChanges.subscribe((value: string) => {

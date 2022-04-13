@@ -16,6 +16,9 @@
       <mat-icon>arrow_forward_ios</mat-icon>
     </div>
   </div>
+  <div class="faces" *ngIf="faces">
+    <app-face *ngFor="let face of faces" [face]="face"></app-face>
+  </div>
 </div>
 
 

@@ -53,13 +53,16 @@
       justify-content: center;
       align-items: center;
       z-index: 4;
+
       .buttons {
         opacity: 0.8;
         padding: 1em;
+
         button {
-          background-color: rgba(0,0,0,0.3);
+          background-color: rgba(0, 0, 0, 0.3);
           border-radius: 50%;
         }
+
         &:hover {
           cursor: pointer;
           opacity: 1;
@@ -91,6 +94,14 @@
         }
 
       }
+    }
+
+    .faces {
+      position: fixed;
+      display: flex;
+      top: 1em;
+      left: 1em;
+      z-index: 6
     }
 
 

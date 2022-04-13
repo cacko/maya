@@ -39,7 +39,7 @@
     </button>
   </div>
 
-  <div class="faces">
+  <div class="faces" *ngIf="!selected">
     <app-faces *ngIf="!loading"></app-faces>
   </div>
 

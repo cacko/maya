@@ -1,18 +1,20 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {FaceEntity} from "../../entity/face";
+import {ImageService} from "../../service/image.service";
 
 @Component({
   selector: 'app-face',
   templateUrl: './face.component.html',
   styleUrls: ['./face.component.scss']
 })
-export class FaceComponent implements OnInit{
+export class FaceComponent {
 
-  @Input() face: FaceEntity|null = null;
+  @Input() face: FaceEntity | null = null;
 
-  link = "";
-
-  constructor() { }
+  constructor(
+    public imageService: ImageService
+  ) {
+  }
 
 
   getImageStyle(): { [key: string]: string } {
@@ -21,8 +23,12 @@ export class FaceComponent implements OnInit{
     };
   }
 
-  ngOnInit(): void {
-    this.link = `/face/${this.face?.name}`;
+  get link() {
+    if (this.imageService.face == this.face?.name) {
+      return "/";
+    }
+    return `/face/${this.face?.name}`;
   }
+
 
 }

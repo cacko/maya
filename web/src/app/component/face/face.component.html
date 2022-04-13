@@ -1,1 +1,3 @@
-<div class="avatar" [ngStyle]="getImageStyle()" [routerLink]="link"></div>
+<div *ngIf="face" [attr.selected]="imageService.face==face.name || null">
+  <div class="avatar" [ngStyle]="getImageStyle()" [routerLink]="link"></div>
+</div>

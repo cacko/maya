@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ApiService } from "../../service/api.service";
 import { Photo } from "../../entity/photo";
 import { ImageService } from "../../service/image.service";
+import {FaceEntity} from "../../entity/face";
+import {FaceService} from "../../service/face.service";
 
 @Component({
   selector: "app-full-view",
@@ -14,12 +16,14 @@ export class FullViewComponent implements OnInit {
   id: string = "";
   image: Photo | undefined | null;
   loaded = false;
+  faces: FaceEntity[]|undefined = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private photos: ApiService,
-    private images: ImageService
+    private images: ImageService,
+    private faceService: FaceService
   ) {
   }
 
@@ -37,6 +41,9 @@ export class FullViewComponent implements OnInit {
             if (image.id) {
               this.images.select(image.id).then(() => {
                 this.images.endLoader();
+                this.faceService.load().then(() => {
+                  this.faces = this.faceService.faces?.filter((f) => image.faces.includes(f.name));
+                });
               });
             }
           };

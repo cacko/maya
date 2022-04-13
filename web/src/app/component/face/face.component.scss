@@ -1,16 +1,25 @@
 :host {
-  display: flex;
-  .avatar {
-    height: 3em;
-    width: 3em;
-    background-size: cover;
-    background-position: center;
-    border-radius: 50%;
-    transition: all 225ms cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-    &:hover {
-      cursor: pointer;
-      transform: matrix(1.15, 0, 0, 1.15, 0, 0);
+  >div {
+    display: flex;
+    .avatar {
+      height: 3em;
+      width: 3em;
+      background-size: cover;
+      background-position: center;
+      border-radius: 50%;
+      transition: all 225ms cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      &:hover {
+        cursor: pointer;
+        transform: matrix(1.15, 0, 0, 1.15, 0, 0);
+      }
+    }
+    &[selected] {
+      .avatar {
+        border: 1px solid white;
+        transform: matrix(1.15, 0, 0, 1.15, 0, 0);
+      }
     }
   }
+
 }
