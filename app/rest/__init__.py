@@ -4,6 +4,7 @@ from app.rest.models.face import Face as RestFace
 from hashlib import blake2s
 from functools import wraps
 from app.rest.models.folder import Folders
+from app.core.decorators import auth_required
 
 bp = Blueprint('rest', __name__, url_prefix="/maya/rest")
 
@@ -28,6 +29,7 @@ def do_cache():
 
 @do_cache()
 @bp.route('/photos.json')
+@auth_required
 def photos():
     return jsonify(RestPhoto.records(request))
 
