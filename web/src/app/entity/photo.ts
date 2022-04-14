@@ -8,6 +8,7 @@ export interface PhotoEntity {
   latitude: number;
   longitude: number;
   faces?: string;
+  locations?: string;
 }
 
 

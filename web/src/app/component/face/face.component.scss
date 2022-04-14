@@ -1,5 +1,6 @@
 :host {
   >div {
+    opacity: 0.2;
     display: flex;
     .avatar {
       height: 3em;
@@ -14,9 +15,14 @@
         transform: matrix(1.15, 0, 0, 1.15, 0, 0);
       }
     }
+    &:hover {
+      transition: 400ms;
+      opacity: 1;
+    }
     &[selected] {
+      opacity: 1;
       .avatar {
-        border: 1px solid white;
+        border: 1px solid rgba(255,255,255,0.7);
         transform: matrix(1.15, 0, 0, 1.15, 0, 0);
       }
     }
