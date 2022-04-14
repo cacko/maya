@@ -1,10 +1,9 @@
 <app-loader *ngIf="loading"></app-loader>
 
-<div class="root" [attr.loading]="loading || null" [attr.expanded]="selected || null">
+<router-outlet></router-outlet>
 
 
-  <router-outlet></router-outlet>
-
+<div class="root" [attr.loading]="loading || null" [attr.expanded]="selected || null" *ngIf="isLoggedIn">
   <div class="container" infiniteScroll
        [infiniteScrollDistance]="scrollDistance"
        [infiniteScrollUpDistance]="scrollUpDistance"

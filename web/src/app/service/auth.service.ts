@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
-import { User, Auth } from "@angular/fire/auth";
-import { Subject } from "rxjs";
-import { AngularFireAuth } from "@angular/fire/compat/auth";
+import {Injectable} from "@angular/core";
+import {Subject} from "rxjs";
+import {AngularFireAuth} from "@angular/fire/compat/auth";
+import firebase from 'firebase/compat/app';
 
 @Injectable({
   providedIn: "root"
@@ -11,17 +11,29 @@ export class AuthService {
   private loggedSubject = new Subject<boolean>();
   isLogged = this.loggedSubject.asObservable();
 
+  private userSubject = new Subject<firebase.User | null>();
+  user = this.userSubject.asObservable();
+
+  token: string = "";
+
   constructor(
-    private auth: Auth,
-    private fireAuth: AngularFireAuth
+    private auth: AngularFireAuth
   ) {
-    this.auth.onAuthStateChanged((user: User | null) => {
-      this.loggedSubject.next(!!user?.isAnonymous);
+    this.auth.onIdTokenChanged((user) => {
+      user?.getIdToken().then(token => {
+        console.log("get token", token);
+        this.token = token + "";
+      });
+    }).then(() => {
+
     });
-    this.fireAuth.signInAnonymously().then((user) => {
-      // this.loggedSubject.next(true);
-    }).catch(e => {
-      console.error((e));
-    });
+    this.auth.onAuthStateChanged((user) => {
+      this.userSubject.next(user);
+      this.loggedSubject.next(!!user && !user.isAnonymous);
+    }).then(complete => console.log(complete));
+  }
+
+  logout() {
+    return this.auth.signOut();
   }
 }

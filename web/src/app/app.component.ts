@@ -17,6 +17,7 @@ import {ViewportScroller} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {Overlay, OverlayConfig, OverlayRef} from "@angular/cdk/overlay";
 import {TemplatePortal} from "@angular/cdk/portal";
+import {AuthService} from "./service/auth.service";
 
 
 enum SearchOriginator {
@@ -50,6 +51,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   query: string = "";
   isSearching = false;
   keywords: string[] = [];
+  isLoggedIn = false;
 
   private keyboardInterval: Subscription | undefined;
   private overlayRef: OverlayRef | undefined;
@@ -67,7 +69,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     private viewportScroller: ViewportScroller,
     private builder: FormBuilder,
     private overlay: Overlay,
-    private viewContainerRef: ViewContainerRef
+    private viewContainerRef: ViewContainerRef,
+    private auth: AuthService
   ) {
     if (this.swUpdate.isEnabled) {
       swUpdate.versionUpdates.pipe(
@@ -87,6 +90,10 @@ export class AppComponent implements OnInit, AfterViewInit {
           );
       });
     }
+    this.auth.isLogged.subscribe((res) => {
+      console.log("logged in", res);
+      this.isLoggedIn = !!res;
+    });
     this.form = this.builder.group({
       query: new FormControl()
     });
