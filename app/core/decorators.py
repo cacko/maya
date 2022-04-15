@@ -24,7 +24,7 @@ def auth_required(f):
         if not user:
             abort(401)
 
-        if user["email"] not in ["spassov@gmail.com"]:
+        if user["email"] not in ["spassov@gmail.com", "maya.vassileva@gmail.com"]:
             abort(403)
 
         return f(*args, **kwargs)

@@ -36,6 +36,7 @@ def photos():
 
 @do_cache()
 @bp.route('/folders.json')
+@auth_required
 def folders():
     records = Folders.get_records()
     return jsonify(records)
@@ -43,17 +44,20 @@ def folders():
 
 @do_cache()
 @bp.route('/folder/<path:folder>.json')
+@auth_required
 def get_folder(folder):
     return jsonify(RestPhoto.records(request, folder=folder))
 
 
 @do_cache()
 @bp.route('/face/<name>.json')
+@auth_required
 def face(name):
     return jsonify(RestPhoto.records(request, face=name))
 
 
 @bp.route('/faces.json')
+@auth_required
 def faces():
     return jsonify(RestFace.records())
 
