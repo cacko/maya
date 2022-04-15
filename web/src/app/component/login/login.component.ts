@@ -20,7 +20,6 @@ export class LoginComponent implements OnInit {
 
   logout() {
     this.auth.signOut().then((res: any) => {
-      console.log(res);
     });
   }
 

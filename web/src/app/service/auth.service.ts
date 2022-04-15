@@ -21,16 +21,15 @@ export class AuthService {
   ) {
     this.auth.onIdTokenChanged((user) => {
       user?.getIdToken().then(token => {
-        console.log("get token", token);
         this.token = token + "";
       });
     }).then(() => {
-
     });
     this.auth.onAuthStateChanged((user) => {
       this.userSubject.next(user);
       this.loggedSubject.next(!!user && !user.isAnonymous);
-    }).then(complete => console.log(complete));
+    }).then(() => {
+    });
   }
 
   logout() {
