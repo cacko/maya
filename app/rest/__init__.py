@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, session
 from app.rest.models.photo import Photo as RestPhoto
 from app.rest.models.face import Face as RestFace
 from hashlib import blake2s
@@ -31,6 +31,7 @@ def do_cache():
 @bp.route('/photos.json')
 @auth_required
 def photos():
+    session.new()
     return jsonify(RestPhoto.records(request))
 
 
