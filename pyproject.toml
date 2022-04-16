@@ -31,6 +31,7 @@ opencv-python = "^4.5.5"
 psycopg2 = "^2.9.3"
 firebase-admin = "^5.2.0"
 Flask-Session = "^0.4.0"
+redis = "^4.2.2"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.6.0"

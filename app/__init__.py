@@ -28,8 +28,6 @@ def create_app(test_config=None):
          allow_header=["etag"],
          expose_headers=["etag", "last-modified"])
     app.config.from_envvar("FLASK_CONFIG")
-    app.secret_key = 'kuramijanko'
-    app.config['SESSION_TYPE'] = 'filesystem'
     sess = Session()
     sess.init_app(app)
 
