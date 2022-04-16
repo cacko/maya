@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask
+from flask import Flask, ses                      sions
 from flask_session import Session
 import logging
 import os
@@ -29,6 +29,7 @@ def create_app(test_config=None):
          expose_headers=["etag", "last-modified"])
     app.config.from_envvar("FLASK_CONFIG")
     app.secret_key = 'kuramijanko'
+    app.config['SESSION_TYPE'] = 'filesystem'
     sess = Session()
     sess.init_app(app)
 
