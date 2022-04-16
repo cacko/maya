@@ -132,6 +132,27 @@ def cmd_self_train(path):
                 sample.save(f"{m.name}_{h.hexdigest()}.jpg", "jpeg")
 
 
+@bp.cli.command('unknown')
+@click.argument("path")
+def cmd_find_unknown(path):
+    Recognise.register(Face.get_matched_data())
+    path = Path(path)
+    img_iterator = [path] if path.is_file() else Local(path)
+    for img_path in tqdm(img_iterator):
+        res = Recognise.faces(img_path, True, unknown=True)
+        if not len(res):
+            continue
+        for m in res:
+            with open(m.src, "rb") as img_fp:
+                img = Image.open(img_fp)
+                img.thumbnail(Recognise.SIZE)
+                upper, right, lower, left = m.location
+                sample = img.crop((left, upper, right, lower))
+                h = blake2s(digest_size=20)
+                h.update(m.src.encode())
+                sample.save(f"{m.name}_{h.hexdigest()}.jpg", "jpeg")
+
+
 @bp.cli.command('tag')
 @click.argument("path")
 @click.option("-f", "--find-matches", default=None)
@@ -195,6 +216,8 @@ def cmd_faces(path, tolerance=0.4, save_results=False, batch_size=10, overwrite=
                         PhotoFace.insert(**pf).on_conflict_ignore().execute()
                     Photo.update(processed=True).where(Photo.id.in_([r.id for r in batch])).execute()
             if photo.id not in processed:
+                with Storage.db.atomic():
+                    Photo.update(processed=True).where(Photo.id.in_([photo.id])).execute()
                 processed.append(photo.id)
                 progress.update()
         batch = []

@@ -36,9 +36,10 @@ class RecogniseMeta(type):
             cls,
             photo: Path,
             with_tags=False,
-            tolerance=0.4
+            tolerance=0.4,
+            unknown=False
     ) -> list[FaceMatch]:
-        return cls().get_face_matches(photo, with_tags, tolerance)
+        return cls().get_face_matches(photo, with_tags, tolerance, unknown)
 
     def batch_faces(
             cls,
@@ -112,7 +113,7 @@ def get_normalized_image(args):
 
 class Recognise(object, metaclass=RecogniseMeta):
 
-    def get_face_matches(self, photo: Path, with_tags=False, tolerance=0.4) -> list[FaceMatch]:
+    def get_face_matches(self, photo: Path, with_tags=False, tolerance=0.4, unknown=False) -> list[FaceMatch]:
         if not photo.exists():
             raise FileNotFoundError
         np_img = face_recognition.load_image_file(photo.resolve().as_posix())
@@ -132,10 +133,19 @@ class Recognise(object, metaclass=RecogniseMeta):
                 self.__class__.known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
+                if unknown:
+                    continue
                 face_data = self.__class__.match_for_idx(best_match_index)
                 results.append(FaceMatch(
                     name=face_data.name,
                     face_id=face_data.face_id,
+                    src=photo.resolve().as_posix(),
+                    location=(top, right, bottom, left)
+                ))
+            elif unknown:
+                results.append(FaceMatch(
+                    name="unknown",
+                    face_id=0,
                     src=photo.resolve().as_posix(),
                     location=(top, right, bottom, left)
                 ))
