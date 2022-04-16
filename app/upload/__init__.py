@@ -3,7 +3,6 @@ from app.s3 import S3, S3Upload
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
 from enum import Enum
-from flask import current_app
 from typing import Callable
 from app.exif import Exif
 
@@ -31,7 +30,6 @@ def upload_thumbs(item: S3Upload, progress: tqdm):
 class Uploader:
     queue: list[S3Upload] = None
     isRunning = False
-    executor: ThreadPoolExecutor = None
     POOL_SIZE = 10
     progress: tqdm = None
     processed = []
@@ -77,7 +75,7 @@ class Uploader:
             return
         self.isRunning = True
 
-        with ThreadPool(processes=self..POOL_SIZE) as f_pool:
+        with ThreadPool(processes=self.POOL_SIZE) as f_pool:
             for folder, src, full, thumb in self._job(f_pool):
                 if src not in self.processed:
                     self.tracking.write(f"{src}\n")
