@@ -7,7 +7,7 @@ from typing import Generator
 
 class Local:
     __root: Path = None
-    EXTENSIONS = ["jpg", "JPG", "png"]
+    EXTENSIONS = ["jpg", "JPG", "png", "jpeg"]
 
     def __init__(self, path: Path) -> None:
         self.__root = path

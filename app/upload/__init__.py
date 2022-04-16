@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
 from flask import current_app
 from typing import Callable
+from app.exif import Exif
 
 
 class Method(Enum):
@@ -13,7 +14,10 @@ class Method(Enum):
 
 
 def upload(item: S3Upload, progress: tqdm):
+    ex = Exif(Path(item.src))
+    ex.fix_orientation()
     folder, src, full, thumb = S3.upload(item)
+    folder, src, full, thumb = S3.thumb(item)
     progress.update(1)
     return folder, src, full, thumb
 
