@@ -1,5 +1,6 @@
 from functools import wraps
 from flask import request, abort, current_app, session
+from flask_session import Session
 from firebase_admin import auth
 import firebase_admin
 
@@ -17,9 +18,9 @@ def auth_required(f):
         if not token:
             abort(401)
 
-        if session.get("token") != token:
+        if session["token"] != token:
 
-            print("check token", session.get("token"), token)
+            print("check token", session["token"], token)
 
             user = auth.verify_id_token(token)
 
@@ -32,6 +33,9 @@ def auth_required(f):
                 abort(403)
 
             session["token"] = token
+
+        else:
+            print("authoruzed")
 
         return f(*args, **kwargs)
 

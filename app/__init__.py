@@ -28,9 +28,6 @@ def create_app(test_config=None):
          allow_header=["etag"],
          expose_headers=["etag", "last-modified"])
     app.config.from_envvar("FLASK_CONFIG")
-    app.secret_key = "fajd%@#$^&ifjaoidf3453a32fijgoigoifjgo"
-    app.config["SESSION_PERMANENT"] = False
-    app.config["SESSION_TYPE"] = "filesystem"
     Session(app)
 
     if app.debug or os.environ.get("FLASK_RUN_FROM_CLI", None):
