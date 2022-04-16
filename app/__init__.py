@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask
+from flask import Flask, session
 import logging
 import os
 from flask.json import JSONEncoder
@@ -27,7 +27,8 @@ def create_app(test_config=None):
          allow_header=["etag"],
          expose_headers=["etag", "last-modified"])
     app.config.from_envvar("FLASK_CONFIG")
-    app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+    app.secret_key = 'kuramijanko'
+    session.new()
     if app.debug or os.environ.get("FLASK_RUN_FROM_CLI", None):
         app.logger.setLevel(logging.DEBUG)
     else:
