@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask
+from flask import Flask, sessions
 from flask_session import Session
 import logging
 import os
@@ -27,8 +27,11 @@ def create_app(test_config=None):
     CORS(app, origins=["http://localhost:4200", "https://maya.cacko.net"],
          allow_header=["etag"],
          expose_headers=["etag", "last-modified"])
-    app.secret_key = "&&eW%ZdAC48Uk@n"
     app.config.from_envvar("FLASK_CONFIG")
+    app.secret_key = "fajd%@#$^&ifjaoidf3453a32fijgoigoifjgo"
+    app.config["SESSION_TYPE"] = "filsy:Wq§:q" \
+                                 "crdoe[ija[w" \
+                                 "[qstem"
     sess = Session()
     sess.init_app(app)
 

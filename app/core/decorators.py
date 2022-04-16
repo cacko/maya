@@ -23,7 +23,7 @@ def auth_required(f):
 
         if session.get("token") != token:
 
-            print("check token", session.get("token"))
+            print("check token", session.get("token"), token)
 
             user = auth.verify_id_token(token)
 
@@ -35,7 +35,7 @@ def auth_required(f):
             if user["email"] not in auth_config.get("users", []):
                 abort(403)
 
-            session.update({"token": token})
+            session["token"] = token
 
         return f(*args, **kwargs)
 
