@@ -18,7 +18,7 @@ def auth_required(f):
         if not token:
             abort(401)
 
-        if session["token"] != token:
+        if session.get("token") != token:
 
             print("check token", session["token"], token)
 
