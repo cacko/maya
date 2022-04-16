@@ -9,7 +9,6 @@ from app.storage import Storage
 from app.face.train import Train
 from app.s3 import S3
 
-sess = Session()
 
 class ISOEncoder(JSONEncoder):
     def default(self, o):
@@ -30,6 +29,7 @@ def create_app(test_config=None):
          expose_headers=["etag", "last-modified"])
     app.config.from_envvar("FLASK_CONFIG")
     app.secret_key = 'kuramijanko'
+    sess = Session()
     sess.init_app(app)
 
     if app.debug or os.environ.get("FLASK_RUN_FROM_CLI", None):
