@@ -27,6 +27,7 @@ def create_app(test_config=None):
     CORS(app, origins=["http://localhost:4200", "https://maya.cacko.net"],
          allow_header=["etag"],
          expose_headers=["etag", "last-modified"])
+    app.secret_key = "est123test"
     app.config.from_envvar("FLASK_CONFIG")
     sess = Session()
     sess.init_app(app)
