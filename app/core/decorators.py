@@ -1,11 +1,10 @@
 from functools import wraps
-from flask import request, abort
+from flask import request, abort, current_app, session
 from firebase_admin import auth
-from flask import session
-from flask import current_app
 import firebase_admin
 
 firebase_admin.initialize_app()
+
 
 def auth_required(f):
     @wraps(f)
@@ -17,6 +16,10 @@ def auth_required(f):
 
         if not token:
             abort(401)
+
+
+
+        print(session)
 
         if session.get("token") != token:
 
