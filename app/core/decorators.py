@@ -20,6 +20,8 @@ def auth_required(f):
 
         if session.get("token") != token:
 
+            print("check token", session.get("token"))
+
             user = auth.verify_id_token(token)
 
             if not user:
