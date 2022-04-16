@@ -1,7 +1,7 @@
 from pathlib import Path
 from app.s3 import S3, S3Upload
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from multiprocessing.pool import ThreadPool
 from enum import Enum
 from flask import current_app
 from typing import Callable
@@ -59,7 +59,7 @@ class Uploader:
         self.queue.append(S3Upload(src=src, dst=dst, skip_upload=skip_upload))
         self.run()
 
-    def _job(self, executor):
+    def _job(self, pool):
         items = []
         while len(self.queue):
             items.append(self.queue.pop(0))
@@ -68,27 +68,21 @@ class Uploader:
         if not len(items):
             return None
         if self.method == Method.THUMB:
-            return map(lambda item: executor.submit(upload_thumbs, item, self.progress), items)
+            return pool.map(upload_thumbs, [(item, self.progress) for item in items])
         else:
-            return map(lambda item: executor.submit(upload, item, self.progress), items)
+            return pool.map(upload, [(item, self.progress) for item in items])
 
     def run(self):
         if self.isRunning:
             return
         self.isRunning = True
-        with ThreadPoolExecutor(max_workers=self.POOL_SIZE) as executor:
-            tasks = self._job(executor)
-            if not tasks:
-                return
-            for future in as_completed(tasks):
-                try:
-                    folder, src, full, thumb = future.result()
-                    if src not in self.processed:
-                        self.tracking.write(f"{src}\n")
-                    if self.callback is not None:
-                        self.callback(folder, src, full, thumb)
-                except Exception as e:
-                    current_app.logger.error(e, exc_info=True)
+
+        with ThreadPool(processes=self..POOL_SIZE) as f_pool:
+            for folder, src, full, thumb in self._job(f_pool):
+                if src not in self.processed:
+                    self.tracking.write(f"{src}\n")
+                if self.callback is not None:
+                    self.callback(folder, src, full, thumb)
             self.isRunning = False
 
     def __del__(self):
