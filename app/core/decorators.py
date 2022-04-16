@@ -3,7 +3,9 @@ from flask import request, abort
 from firebase_admin import auth
 from flask import session
 from flask import current_app
+import firebase_admin
 
+firebase_admin.initialize_app()
 
 def auth_required(f):
     @wraps(f)
