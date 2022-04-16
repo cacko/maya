@@ -35,7 +35,7 @@ def auth_required(f):
             if user["email"] not in auth_config.get("users", []):
                 abort(403)
 
-            session["token"] = token
+            session.update({"token": token})
 
         return f(*args, **kwargs)
 
