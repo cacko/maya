@@ -31,7 +31,9 @@ def do_cache():
 @bp.route('/photos.json')
 @auth_required
 def photos():
-    session.new(False)
+    session.update({
+        "junk": "shit"
+    })
     return jsonify(RestPhoto.records(request))
 
 
