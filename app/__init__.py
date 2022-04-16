@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, ses                      sions
+from flask import Flask
 from flask_session import Session
 import logging
 import os
