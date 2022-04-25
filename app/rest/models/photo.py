@@ -21,7 +21,7 @@ def get_records(
         page: int = 1,
         query: str = None,
         folder: str = None,
-        per_page: int = 100,
+        per_page: int = 200,
         face: str = ""
 ) -> list['Photo']:
     q = DbPhoto.select(
