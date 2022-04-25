@@ -47,8 +47,8 @@
 
 
       @media screen and (min-width: 600px) {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        grid-auto-rows: 150px;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-auto-rows: 250px;
       }
 
 
@@ -58,8 +58,11 @@
         overflow-y: hidden;
         gap: 0;
         height: 50px;
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+
+        /* Firefox */
         &::-webkit-scrollbar {
           display: none;
         }
@@ -136,8 +139,6 @@
       &[filtered] {
         display: inline-block;
       }
-
-
     }
 
     .mat-chip {
@@ -147,6 +148,4 @@
       font-variant: small-caps;
     }
   }
-
-
 }
