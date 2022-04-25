@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, sessions
+from flask import Flask, session
 from flask_session import Session
 import logging
 import os
@@ -8,7 +8,7 @@ from flask_cors import CORS
 from app.storage import Storage
 from app.face.train import Train
 from app.s3 import S3
-
+from redis import Redis
 
 class ISOEncoder(JSONEncoder):
     def default(self, o):
@@ -28,6 +28,10 @@ def create_app(test_config=None):
          allow_header=["etag"],
          expose_headers=["etag", "last-modified"])
     app.config.from_envvar("FLASK_CONFIG")
+    if app.config.get("SESSION_TYPE") == "redis":
+        redis_client = Redis()
+        redis_client.from_url(app.config.get("SESSION_REDIS"))
+        app.config["SESSION_REDIS"] = redis_client
     Session(app)
 
     if app.debug or os.environ.get("FLASK_RUN_FROM_CLI", None):
